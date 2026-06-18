@@ -26,7 +26,7 @@ export default function Navbar() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-1">
               <span className="font-bold text-xl tracking-tight text-zinc-900 dark:text-white">
-                Life<span className="text-blue-500 dark:text-blue-400 font-semibold">Lessons</span>
+                Lexmora
               </span>
             </Link>
           </div>
