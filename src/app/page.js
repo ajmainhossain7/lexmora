@@ -17,6 +17,7 @@ export default function Home() {
           <Button color="secondary" variant="flat" size="lg">
             Learn More
           </Button>
+          
         </div>
       </main>
     </div>
