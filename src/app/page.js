@@ -9,8 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, Sparkles, TrendingUp, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 
 // Modular Home Sections
-import FeaturedLessonsDark from '../components/home/FeaturedLessonsDark';
-import FeaturedLessonsLight from '../components/home/FeaturedLessonsLight';
+import FeaturedLessons from '../components/home/FeaturedLessons';
 import WhyLearning from '../components/home/WhyLearning';
 import ContributorsAndSaved from '../components/home/ContributorsAndSaved';
 import UpgradeCTA from '../components/home/UpgradeCTA';
@@ -26,10 +25,10 @@ const slidesData = [
     lightDesc: "Capture wisdom, preserve experiences, and grow through shared lessons. Join a community dedicated to intentional living and lifelong learning.",
     darkBtnPrimary: "Start Reading",
     lightBtnPrimary: "Start Writing",
-    btnPrimaryHref: "/feed",
+    btnPrimaryHref: "/lessons",
     darkBtnSecondary: "Explore Feed",
     lightBtnSecondary: "Explore Lessons",
-    btnSecondaryHref: "/feed",
+    btnSecondaryHref: "/lessons",
     badgeLabel: "New Lesson",
     badgeTitle: "Deep Work Rituals",
     badgeColor: "text-blue-400 bg-blue-500/10 border-blue-500/20",
@@ -42,7 +41,7 @@ const slidesData = [
     lightDesc: "Unlock the real stories, major failures, and key breakthroughs shared by thinkers, builders, and artists around the globe.",
     darkBtnPrimary: "Explore Feed",
     lightBtnPrimary: "Share Lesson",
-    btnPrimaryHref: "/feed",
+    btnPrimaryHref: "/lessons",
     darkBtnSecondary: "Join Community",
     lightBtnSecondary: "Join Free",
     btnSecondaryHref: "/signup",
@@ -369,30 +368,17 @@ export default function Home() {
       {/* Dynamic Content Sections */}
       {mounted && (
         <div className="w-full transition-colors duration-300">
-          {isDark ? (
-            <>
-              {loadingLessons ? (
-                <LessonsDarkSkeleton />
-              ) : (
-                <FeaturedLessonsDark lessons={lessons} />
-              )}
-              <Newsletter isDark={true} />
-            </>
+          {loadingLessons ? (
+            <LessonsSkeleton />
           ) : (
-            <>
-              {loadingLessons ? (
-                <LessonsLightSkeleton />
-              ) : (
-                <FeaturedLessonsLight lessons={lessons} />
-              )}
-              <WhyLearning />
-              <ContributorsAndSaved />
-              <UpgradeCTA />
-              <Testimonials />
-              <FAQ />
-              <Newsletter isDark={false} />
-            </>
+            <FeaturedLessons lessons={lessons} />
           )}
+          <WhyLearning />
+          <ContributorsAndSaved />
+          <UpgradeCTA />
+          <Testimonials />
+          <FAQ />
+          <Newsletter isDark={isDark} />
         </div>
       )}
     </div>
@@ -400,24 +386,7 @@ export default function Home() {
 }
 
 // Skeletons for Loading State
-function LessonsDarkSkeleton() {
-  return (
-    <div className="py-20 w-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
-      <div className="space-y-3 animate-pulse">
-        <div className="h-4 w-32 bg-zinc-800 rounded-full" />
-        <div className="h-10 w-96 bg-zinc-800 rounded-lg" />
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-pulse">
-        <div className="lg:col-span-8 h-[320px] rounded-2xl bg-zinc-900/60 border border-zinc-800/80" />
-        <div className="lg:col-span-4 h-[320px] rounded-2xl bg-zinc-900/60 border border-zinc-800/80" />
-        <div className="lg:col-span-4 h-[320px] rounded-2xl bg-zinc-900/60 border border-zinc-800/80" />
-        <div className="lg:col-span-8 h-[320px] rounded-2xl bg-zinc-900/60 border border-zinc-800/80" />
-      </div>
-    </div>
-  );
-}
-
-function LessonsLightSkeleton() {
+function LessonsSkeleton() {
   return (
     <div className="py-20 w-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 animate-pulse">

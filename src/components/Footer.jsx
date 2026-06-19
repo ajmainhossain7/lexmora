@@ -52,12 +52,12 @@ export default function Footer() {
             </h3>
             <ul className="mt-4 space-y-2.5">
               <li>
-                <Link href="/feed" className="text-sm text-secondary-brand dark:text-tertiary-brand hover:text-zinc-900 dark:hover:text-white transition-colors">
-                  Feed
+                <Link href="/lessons" className="text-sm text-secondary-brand dark:text-tertiary-brand hover:text-zinc-900 dark:hover:text-white transition-colors">
+                  Public Lessons
                 </Link>
               </li>
               <li>
-                <Link href="/pricing" className="text-sm text-secondary-brand dark:text-tertiary-brand hover:text-zinc-900 dark:hover:text-white transition-colors">
+                <Link href="/plans" className="text-sm text-secondary-brand dark:text-tertiary-brand hover:text-zinc-900 dark:hover:text-white transition-colors">
                   Pricing
                 </Link>
               </li>

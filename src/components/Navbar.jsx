@@ -13,8 +13,9 @@ export default function Navbar() {
   const pathname = usePathname();
 
   const menuItems = [
-    { label: 'Feed', href: '/feed' },
-    { label: 'Pricing', href: '/pricing' },
+    { label: 'Home', href: '/' },
+    { label: 'Public Lessons', href: '/lessons' },
+    { label: 'Pricing', href: '/plans' },
     { label: 'Dashboard', href: '/dashboard' },
   ];
 
@@ -25,7 +26,7 @@ export default function Navbar() {
           {/* Logo & Brand */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-1">
-              <span className="font-bold text-xl tracking-tight text-zinc-900 dark:text-white">
+              <span className="font-bold text-xl tracking-tight text-zinc-900 dark:text-white font-headline">
                 Lexmora
               </span>
             </Link>
@@ -58,14 +59,14 @@ export default function Navbar() {
           <div className="hidden sm:flex items-center gap-4">
             <ThemeToggle />
             <Link
-              href="/login"
+              href="/auth/signin"
               className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors duration-200"
             >
               Login
             </Link>
             <Button
               as={Link}
-              href="/signup"
+              href="/auth/signup"
               color="primary"
               className="bg-zinc-900 text-white dark:bg-blue-600 dark:text-white font-semibold text-sm px-5 py-2 h-9 rounded-md transition-all hover:bg-zinc-800 dark:hover:bg-blue-500"
             >
@@ -94,7 +95,7 @@ export default function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="sm:hidden border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0A0D1A] overflow-hidden"
+            className="sm:hidden border-b border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-[#0A0D1A] overflow-hidden"
           >
             <div className="px-4 pt-2 pb-4 space-y-1">
               {menuItems.map((item) => {
@@ -116,7 +117,7 @@ export default function Navbar() {
               <div className="pt-4 flex flex-col gap-2">
                 <Button
                   as={Link}
-                  href="/login"
+                  href="/auth/signin"
                   variant="bordered"
                   className="w-full border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-md font-semibold"
                   onClick={() => setIsMenuOpen(false)}
@@ -125,7 +126,7 @@ export default function Navbar() {
                 </Button>
                 <Button
                   as={Link}
-                  href="/signup"
+                  href="/auth/signup"
                   className="w-full bg-zinc-900 text-white dark:bg-blue-600 dark:text-white rounded-md font-semibold"
                   onClick={() => setIsMenuOpen(false)}
                 >

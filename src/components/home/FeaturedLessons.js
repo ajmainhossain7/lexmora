@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
-export default function FeaturedLessonsLight({ lessons = [] }) {
+export default function FeaturedLessons({ lessons = [] }) {
   // Use dynamic lessons data, slice up to 3, fallback to default mock lessons if database has none
   const fallbackLessons = [
     {
@@ -54,7 +54,7 @@ export default function FeaturedLessonsLight({ lessons = [] }) {
       {/* Section Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
         <div className="space-y-2 text-left">
-          <h2 className="text-sm font-extrabold tracking-wider text-[#27374D] uppercase">
+          <h2 className="text-sm font-extrabold tracking-wider text-[#27374D] dark:text-[#9DB2BF] uppercase">
             Featured Lessons
           </h2>
           <p className="text-3xl sm:text-4xl font-extrabold text-zinc-900 dark:text-white font-headline">
@@ -62,7 +62,7 @@ export default function FeaturedLessonsLight({ lessons = [] }) {
           </p>
         </div>
         <Link
-          href="/feed"
+          href="/lessons"
           className="inline-flex items-center gap-1.5 text-sm font-bold text-[#27374D] dark:text-[#9DB2BF] hover:text-[#526D82] dark:hover:text-white transition-colors self-start sm:self-auto group"
         >
           View All
