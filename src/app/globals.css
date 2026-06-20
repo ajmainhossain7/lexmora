@@ -38,3 +38,24 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-headline);
 }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printable-lesson, #printable-lesson * {
+    visibility: visible;
+  }
+  #printable-lesson {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: white !important;
+    color: black !important;
+    padding: 20px;
+  }
+  .no-print {
+    display: none !important;
+  }
+}

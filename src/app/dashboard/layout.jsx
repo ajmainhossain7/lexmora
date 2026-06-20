@@ -3,7 +3,7 @@
 import { useEffect, Suspense } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
-import { LayoutDashboard, BookOpen, PlusCircle, Heart, Shield, Settings, Loader2 } from "lucide-react";
+import { LayoutDashboard, BookOpen, PlusCircle, Heart, Shield, Settings, Loader2, Flag } from "lucide-react";
 import Link from "next/link";
 
 function SidebarNav({ sidebarItems, pathname }) {
@@ -64,6 +64,7 @@ export default function DashboardLayout({ children }) {
         ? [
               { label: "Overview", href: "/dashboard/admin", icon: LayoutDashboard },
               { label: "All Lessons", href: "/dashboard/admin?tab=lessons", icon: BookOpen },
+              { label: "Moderation Reports", href: "/dashboard/admin?tab=reports", icon: Flag },
           ]
         : [
               { label: "Overview", href: "/dashboard/user", icon: LayoutDashboard },

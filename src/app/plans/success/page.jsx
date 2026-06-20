@@ -19,7 +19,7 @@ function SuccessContent() {
                 <div className="absolute top-[20%] left-[50%] -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-indigo-500/10 dark:bg-indigo-500/5 blur-[120px]" />
             </div>
 
-            <motion.div 
+            <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 15 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ duration: 0.4, type: "spring", stiffness: 120 }}
@@ -27,7 +27,7 @@ function SuccessContent() {
             >
                 {/* Glowing Success Badge */}
                 <div className="relative w-20 h-20 mx-auto">
-                    <motion.div 
+                    <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: 0.15, type: "spring", stiffness: 150 }}
@@ -35,7 +35,7 @@ function SuccessContent() {
                     >
                         <CheckCircle2 className="w-12 h-12 stroke-[1.5]" />
                     </motion.div>
-                    <motion.div 
+                    <motion.div
                         animate={{ scale: [1, 1.15, 1] }}
                         transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
                         className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center text-white border-2 border-white dark:border-slate-900 shadow-md"

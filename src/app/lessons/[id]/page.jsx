@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Heart, Bookmark, BookmarkCheck, MessageCircle, Share2,
   ArrowLeft, Clock, Tag, Zap, Lock, Send, Loader2,
-  AlertCircle, ChevronRight, Star
+  AlertCircle, ChevronRight, Star, FileText, Flag
 } from 'lucide-react';
 import { useSession } from '@/lib/auth-client';
 import { getLessonById } from '@/lib/api/lessons';
@@ -16,6 +16,7 @@ import { checkFavorite } from '@/lib/api/favorites';
 import { toggleLikeLesson } from '@/lib/actions/lessons';
 import { toggleFavorite } from '@/lib/actions/favorites';
 import { createComment } from '@/lib/actions/comments';
+import { createReport } from '@/lib/actions/reports';
 import toast from 'react-hot-toast';
 
 // ── Emotional tone colour map ────────────────────────────────────────────────
@@ -57,6 +58,11 @@ export default function LessonDetailPage() {
   const [likeLoading, setLikeLoading] = useState(false);
   const [copied, setCopied]         = useState(false);
   const commentRef = useRef(null);
+
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [reportReason, setReportReason] = useState('Spam');
+  const [reportDetails, setReportDetails] = useState('');
+  const [reportSubmitting, setReportSubmitting] = useState(false);
 
   const user = session?.user;
   const isPremiumUser = user?.plan === 'user_premium' || user?.role === 'admin';
@@ -136,6 +142,41 @@ export default function LessonDetailPage() {
     setCopied(true);
     toast.success('🔗 Link copied to clipboard!');
     setTimeout(() => setCopied(false), 2500);
+  };
+
+  // ── Export PDF ────────────────────────────────────────────────────────────────
+  const handleExportPDF = () => {
+    if (!isPremiumUser) {
+      toast.error('PDF exporting is a Premium feature. Please upgrade your plan!');
+      return;
+    }
+    window.print();
+  };
+
+  // ── Report handler ────────────────────────────────────────────────────────────
+  const handleReportSubmit = async (e) => {
+    e.preventDefault();
+    if (!user) {
+      toast.error('Please sign in to report a lesson.');
+      return;
+    }
+    setReportSubmitting(true);
+    const reportData = {
+      lessonId: id,
+      lessonTitle: lesson.title,
+      reason: reportReason,
+      details: reportDetails.trim(),
+    };
+    const result = await createReport(reportData);
+    if (result) {
+      toast.success('Thank you. The report has been submitted to moderators.');
+      setReportModalOpen(false);
+      setReportDetails('');
+      setReportReason('Spam');
+    } else {
+      toast.error('Failed to submit report. Please try again.');
+    }
+    setReportSubmitting(false);
   };
 
   // ── Comment submit ────────────────────────────────────────────────────────────
@@ -301,10 +342,38 @@ export default function LessonDetailPage() {
             {/* Share */}
             <button
               onClick={handleShare}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 transition-all"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 transition-all no-print"
             >
               <Share2 className="w-4 h-4" />
               <span>{copied ? 'Copied!' : 'Share'}</span>
+            </button>
+
+            {/* Export PDF */}
+            <button
+              onClick={handleExportPDF}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border transition-all no-print ${
+                isPremiumUser 
+                  ? 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:border-zinc-400' 
+                  : 'bg-zinc-100 dark:bg-zinc-850/50 text-zinc-400 dark:text-zinc-650 border-zinc-250 dark:border-zinc-800/80 cursor-pointer'
+              }`}
+            >
+              <FileText className="w-4 h-4" />
+              <span>PDF</span>
+            </button>
+
+            {/* Report */}
+            <button
+              onClick={() => {
+                if (!user) {
+                  toast.error('Please sign in to report this lesson.');
+                  return;
+                }
+                setReportModalOpen(true);
+              }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:border-rose-450 hover:text-rose-500 transition-all no-print"
+            >
+              <Flag className="w-4 h-4" />
+              <span>Report</span>
             </button>
           </div>
         </div>
@@ -487,6 +556,104 @@ export default function LessonDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Printable Lesson view (hidden on screen, visible during printing) */}
+      <div id="printable-lesson" className="hidden">
+        <div style={{ borderBottom: '2px solid #e2e8f0', paddingBottom: '1.5rem', marginBottom: '2rem' }}>
+          <p style={{ textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: 'bold', letterSpacing: '0.05em', color: '#64748b' }}>
+            Lexmora Premium Lesson · {lesson.category} · {lesson.emotionalTone}
+          </p>
+          <h1 style={{ fontSize: '2.25rem', fontWeight: '800', margin: '0.5rem 0', color: '#0f172a' }}>{lesson.title}</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '1rem' }}>
+            <div>
+              <p style={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#1e293b', margin: 0 }}>Shared by: {lesson.author?.name || 'Anonymous'}</p>
+              <p style={{ fontSize: '0.75rem', color: '#64748b', margin: 0 }}>{lesson.readTime} · {lesson.createdAt ? new Date(lesson.createdAt).toLocaleDateString() : ''}</p>
+            </div>
+          </div>
+        </div>
+        <div style={{ fontSize: '1rem', lineHeight: '1.8', color: '#334155', whiteSpace: 'pre-wrap' }}>
+          <p style={{ fontWeight: '600', fontSize: '1.125rem', color: '#0f172a', marginBottom: '1.5rem' }}>{lesson.description}</p>
+          {lesson.body}
+        </div>
+      </div>
+
+      {/* Report Lesson Modal */}
+      <AnimatePresence>
+        {reportModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setReportModalOpen(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            
+            {/* Modal Content */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 w-full max-w-md shadow-2xl relative z-10 space-y-6 text-left"
+            >
+              <div>
+                <h3 className="text-xl font-bold text-zinc-900 dark:text-white font-headline flex items-center gap-2">
+                  <Flag className="w-5 h-5 text-rose-500 fill-rose-500/10" /> Report Lesson
+                </h3>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 font-body mt-1">
+                  Help us keep Lexmora safe and educational. Why are you reporting this lesson?
+                </p>
+              </div>
+
+              <form onSubmit={handleReportSubmit} className="space-y-4 font-body">
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1.5">Reason</label>
+                  <select
+                    value={reportReason}
+                    onChange={(e) => setReportReason(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-850 bg-white dark:bg-zinc-950 text-sm focus:outline-none transition-all cursor-pointer"
+                  >
+                    <option value="Spam">Spam or Misleading</option>
+                    <option value="Harassment">Harassment or Hate Speech</option>
+                    <option value="Inappropriate">Inappropriate content / Nudity</option>
+                    <option value="Copyright">Copyright Violation / Plagiarism</option>
+                    <option value="Other">Other Reasons</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1.5">Details (Optional)</label>
+                  <textarea
+                    value={reportDetails}
+                    onChange={(e) => setReportDetails(e.target.value)}
+                    placeholder="Provide any additional context..."
+                    rows={3}
+                    className="w-full p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-850 bg-white dark:bg-zinc-950 text-sm focus:outline-none transition-all resize-none"
+                  />
+                </div>
+
+                <div className="flex gap-3 justify-end pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setReportModalOpen(false)}
+                    className="bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-xl px-4 py-2 font-semibold text-xs transition-all cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <Button
+                    type="submit"
+                    isLoading={reportSubmitting}
+                    className="bg-rose-600 hover:bg-rose-700 text-white rounded-xl px-4 py-2 font-bold text-xs transition-all cursor-pointer"
+                  >
+                    Submit Report
+                  </Button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
