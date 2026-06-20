@@ -100,25 +100,6 @@ export default function Home() {
     fetchFeaturedLessons();
   }, []);
 
-  // Auto-play mechanism
-  useEffect(() => {
-    startTimer();
-    return () => stopTimer();
-  }, [currentSlide]);
-
-  const startTimer = () => {
-    stopTimer();
-    timerRef.current = setInterval(() => {
-      handleNext();
-    }, 6000); // Change slide every 6 seconds
-  };
-
-  const stopTimer = () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-    }
-  };
-
   const handleNext = () => {
     setDirection(1);
     setCurrentSlide((prev) => (prev + 1) % slidesData.length);
@@ -133,6 +114,25 @@ export default function Home() {
     setDirection(index > currentSlide ? 1 : -1);
     setCurrentSlide(index);
   };
+
+  const stopTimer = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+  };
+
+  const startTimer = () => {
+    stopTimer();
+    timerRef.current = setInterval(() => {
+      handleNext();
+    }, 6000); // Change slide every 6 seconds
+  };
+
+  // Auto-play mechanism
+  useEffect(() => {
+    startTimer();
+    return () => stopTimer();
+  }, [currentSlide]);
 
   // Default to dark theme for server rendering to maintain consistency with dark mode layout
   const isDark = mounted ? resolvedTheme === 'dark' : true;

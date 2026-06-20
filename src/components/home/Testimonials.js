@@ -46,7 +46,7 @@ export default function Testimonials() {
                 ))}
               </div>
               <p className="text-zinc-600 dark:text-zinc-300 font-body leading-relaxed text-base sm:text-lg italic">
-                "{r.quote}"
+                &ldquo;{r.quote}&rdquo;
               </p>
             </div>
 

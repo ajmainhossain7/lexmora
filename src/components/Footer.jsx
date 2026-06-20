@@ -20,7 +20,7 @@ export default function Footer() {
                 </span>
               </Link>
               <p className="text-sm text-secondary-brand dark:text-tertiary-brand leading-relaxed">
-                The intersection of productivity and storytelling. Curating the world's wisdom for those who never stop learning.
+                The intersection of productivity and storytelling. Curating the world&apos;s wisdom for those who never stop learning.
               </p>
             </div>
             
