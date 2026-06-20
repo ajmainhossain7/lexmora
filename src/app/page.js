@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTheme } from 'next-themes';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -197,7 +197,7 @@ export default function Home() {
         </div>
 
         {/* Main Slider Content Area */}
-        <div 
+        <div
           className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-12 lg:py-20 flex-grow flex items-center relative"
           onMouseEnter={stopTimer}
           onMouseLeave={startTimer}
@@ -260,11 +260,10 @@ export default function Home() {
                     <Button
                       as={Link}
                       href={currentSlideData.btnPrimaryHref}
-                      className={`font-semibold px-8 py-6 rounded-lg text-base shadow-lg transition-all duration-300 flex items-center justify-center gap-2 ${
-                        isDark
+                      className={`font-semibold px-8 py-6 rounded-lg text-base shadow-lg transition-all duration-300 flex items-center justify-center gap-2 ${isDark
                           ? "bg-white text-zinc-950 hover:bg-zinc-100 shadow-white/5 hover:scale-[1.02]"
                           : "bg-[#27374D] text-white hover:bg-[#1f2b3c] shadow-zinc-900/10 hover:scale-[1.02]"
-                      }`}
+                        }`}
                     >
                       {isDark ? currentSlideData.darkBtnPrimary : currentSlideData.lightBtnPrimary}
                       <ArrowRight className="w-4 h-4" />
@@ -273,11 +272,10 @@ export default function Home() {
                       as={Link}
                       href={currentSlideData.btnSecondaryHref}
                       variant="bordered"
-                      className={`font-semibold px-8 py-6 rounded-lg text-base transition-all duration-300 border-2 ${
-                        isDark
+                      className={`font-semibold px-8 py-6 rounded-lg text-base transition-all duration-300 border-2 ${isDark
                           ? "border-zinc-800 text-white hover:bg-zinc-900/40 hover:border-zinc-700"
                           : "border-zinc-200 text-zinc-800 hover:bg-zinc-50"
-                      }`}
+                        }`}
                     >
                       {isDark ? currentSlideData.darkBtnSecondary : currentSlideData.lightBtnSecondary}
                     </Button>
@@ -354,11 +352,10 @@ export default function Home() {
             <button
               key={index}
               onClick={() => goToSlide(index)}
-              className={`h-2.5 rounded-full transition-all duration-300 ${
-                index === currentSlide
+              className={`h-2.5 rounded-full transition-all duration-300 ${index === currentSlide
                   ? "w-8 bg-zinc-900 dark:bg-white"
                   : "w-2.5 bg-zinc-300 dark:bg-zinc-700 hover:bg-zinc-400 dark:hover:bg-zinc-600"
-              }`}
+                }`}
               aria-label={`Go to slide ${index + 1}`}
             />
           ))}

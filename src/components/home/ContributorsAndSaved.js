@@ -50,7 +50,7 @@ export default function ContributorsAndSaved() {
   return (
     <section className="py-20 w-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-stretch">
-        
+
         {/* Left Column: Top Contributors */}
         <div className="lg:col-span-6 flex flex-col justify-between space-y-8 text-left">
           <div className="space-y-2">
@@ -128,7 +128,7 @@ export default function ContributorsAndSaved() {
 
             <div className="pt-8 border-t border-zinc-900 mt-6">
               <Link
-                href="/feed"
+                href="/lessons"
                 className="inline-flex items-center gap-2 text-sm font-bold text-white hover:text-blue-400 transition-colors group/link"
               >
                 View Leaderboard

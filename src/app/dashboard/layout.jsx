@@ -1,3 +1,18 @@
+/*
+Project: Lexmora
+
+Technologies Used:
+* Next.js
+* HeroUI 3.1.0
+* Tailwind CSS
+* Better Auth
+* MongoDB
+* JWT
+
+Purpose:
+Dashboard layout containing sidebar navigation links for users and admins.
+*/
+
 "use client";
 
 import { useEffect, Suspense } from "react";
@@ -65,12 +80,14 @@ export default function DashboardLayout({ children }) {
               { label: "Overview", href: "/dashboard/admin", icon: LayoutDashboard },
               { label: "All Lessons", href: "/dashboard/admin?tab=lessons", icon: BookOpen },
               { label: "Moderation Reports", href: "/dashboard/admin?tab=reports", icon: Flag },
+              { label: "Admin Profile", href: "/dashboard/admin?tab=profile", icon: Settings },
           ]
         : [
               { label: "Overview", href: "/dashboard/user", icon: LayoutDashboard },
               { label: "Add Lesson", href: "/dashboard/user?tab=add", icon: PlusCircle },
               { label: "My Lessons", href: "/dashboard/user?tab=my", icon: BookOpen },
               { label: "Favorites", href: "/dashboard/user?tab=fav", icon: Heart },
+              { label: "My Profile", href: "/dashboard/user?tab=profile", icon: Settings },
           ];
 
     return (
