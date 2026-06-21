@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, SlidersHorizontal, ArrowUpDown, CornerDownRight, ArrowRight, Frown, Sparkles, Heart, Bookmark } from 'lucide-react';
 import { Button } from '@heroui/react';
 import Link from 'next/link';
-import { getLessons } from '../../lib/api/lessons';
+import { getLessons } from '@/lib/api/lessons';
 
 const categories = ['All', 'Resilience', 'Focus', 'Growth', 'Strategy', 'Relationships', 'Finance'];
 const emotionalTones = ['All', 'Hopeful', 'Resilient', 'Reflective', 'Motivated', 'Grateful'];
@@ -126,24 +126,27 @@ export default function Lessons() {
             <div className="relative flex-grow max-w-xl">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
               <input
+                id="search-lessons"
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search lessons by title or keyword..."
-                className="w-full pl-10 pr-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800/80 bg-white dark:bg-zinc-950 text-sm font-body text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-700 transition-all shadow-sm"
+                aria-label="Search lessons by title or keyword"
+                className="w-full pl-10 pr-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800/80 bg-white dark:bg-zinc-950 text-sm font-body text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-450 dark:focus:border-zinc-700 focus-visible:ring-2 focus-visible:ring-blue-500 transition-all shadow-sm"
               />
             </div>
 
             {/* Sorting Dropdown */}
             <div className="flex items-center gap-3 self-end md:self-auto">
-              <div className="flex items-center gap-1.5 text-zinc-500 text-sm font-semibold">
+              <label htmlFor="sort-select" className="flex items-center gap-1.5 text-zinc-500 text-sm font-semibold cursor-pointer">
                 <ArrowUpDown className="w-4 h-4" />
                 <span>Sort by:</span>
-              </div>
+              </label>
               <select
+                id="sort-select"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800/80 bg-white dark:bg-zinc-950 text-sm font-semibold text-zinc-700 dark:text-zinc-300 focus:outline-none transition-all shadow-sm cursor-pointer"
+                className="px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800/80 bg-white dark:bg-zinc-950 text-sm font-semibold text-zinc-700 dark:text-zinc-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-all shadow-sm cursor-pointer"
               >
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>

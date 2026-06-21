@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useSession, authClient } from "@/lib/auth-client";
 import { getAdminUsers, getAdminStats } from "@/lib/api/users";
@@ -13,14 +13,26 @@ import { ShieldAlert, Sparkles } from "lucide-react";
 import { Button } from "@heroui/react";
 import toast from "react-hot-toast";
 
-// Admin Dashboard Subcomponents
-import AdminOverview from "@/components/dashboard/admin/AdminOverview";
-import ManageUsers from "@/components/dashboard/admin/ManageUsers";
-import ManageLessons from "@/components/dashboard/admin/ManageLessons";
-import ReportsModeration from "@/components/dashboard/admin/ReportsModeration";
-import AdminProfile from "@/components/dashboard/admin/AdminProfile";
+import dynamic from "next/dynamic";
 
-function AdminDashboardContent() {
+// Admin Dashboard Subcomponents (Dynamically Imported for Performance Optimization)
+const AdminOverview = dynamic(() => import("@/components/dashboard/admin/AdminOverview"), {
+    loading: () => <div className="p-12 text-center text-slate-500 animate-pulse">Loading overview...</div>
+});
+const ManageUsers = dynamic(() => import("@/components/dashboard/admin/ManageUsers"), {
+    loading: () => <div className="p-12 text-center text-slate-500 animate-pulse">Loading users...</div>
+});
+const ManageLessons = dynamic(() => import("@/components/dashboard/admin/ManageLessons"), {
+    loading: () => <div className="p-12 text-center text-slate-500 animate-pulse">Loading lessons...</div>
+});
+const ReportsModeration = dynamic(() => import("@/components/dashboard/admin/ReportsModeration"), {
+    loading: () => <div className="p-12 text-center text-slate-500 animate-pulse">Loading moderation...</div>
+});
+const AdminProfile = dynamic(() => import("@/components/dashboard/admin/AdminProfile"), {
+    loading: () => <div className="p-12 text-center text-slate-500 animate-pulse">Loading profile...</div>
+});
+
+export default function AdminDashboard() {
     const { data: session } = useSession();
     const [stats, setStats] = useState(null);
     const [usersList, setUsersList] = useState([]);
@@ -218,7 +230,7 @@ function AdminDashboardContent() {
                 </div>
                 <div className="flex gap-2 flex-wrap">
                     <Button
-                        onClick={() => router.push("/dashboard/admin")}
+                        onClick={() => router.push("/dashboard")}
                         className={`text-xs font-semibold py-2 px-4 rounded-lg transition cursor-pointer ${
                             activeSection === "overview" ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/20" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-zinc-300"
                         }`}
@@ -226,7 +238,7 @@ function AdminDashboardContent() {
                         Overview
                     </Button>
                     <Button
-                        onClick={() => router.push("/dashboard/admin?tab=users")}
+                        onClick={() => router.push("/dashboard?tab=users")}
                         className={`text-xs font-semibold py-2 px-4 rounded-lg transition cursor-pointer ${
                             activeSection === "users" ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/20" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-zinc-300"
                         }`}
@@ -234,7 +246,7 @@ function AdminDashboardContent() {
                         Manage Users
                     </Button>
                     <Button
-                        onClick={() => router.push("/dashboard/admin?tab=lessons")}
+                        onClick={() => router.push("/dashboard?tab=lessons")}
                         className={`text-xs font-semibold py-2 px-4 rounded-lg transition cursor-pointer ${
                             activeSection === "lessons" ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/20" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-zinc-300"
                         }`}
@@ -242,7 +254,7 @@ function AdminDashboardContent() {
                         Manage Lessons
                     </Button>
                     <Button
-                        onClick={() => router.push("/dashboard/admin?tab=reports")}
+                        onClick={() => router.push("/dashboard?tab=reports")}
                         className={`text-xs font-semibold py-2 px-4 rounded-lg transition cursor-pointer ${
                             activeSection === "reports" ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/20" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-zinc-300"
                         }`}
@@ -250,7 +262,7 @@ function AdminDashboardContent() {
                         Reports Moderation
                     </Button>
                     <Button
-                        onClick={() => router.push("/dashboard/admin?tab=profile")}
+                        onClick={() => router.push("/dashboard?tab=profile")}
                         className={`text-xs font-semibold py-2 px-4 rounded-lg transition cursor-pointer ${
                             activeSection === "profile" ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/20" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-zinc-300"
                         }`}
@@ -311,13 +323,5 @@ function AdminDashboardContent() {
                 </>
             )}
         </div>
-    );
-}
-
-export default function AdminDashboardPage() {
-    return (
-        <Suspense fallback={<div className="p-12 text-center text-slate-500">Loading admin operations...</div>}>
-            <AdminDashboardContent />
-        </Suspense>
     );
 }

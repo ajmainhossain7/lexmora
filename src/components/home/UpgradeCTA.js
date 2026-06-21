@@ -34,7 +34,7 @@ export default function UpgradeCTA() {
         <div className="z-10 flex-shrink-0">
           <Button
             as={Link}
-            href="/pricing"
+            href="/plans"
             className="bg-white text-zinc-950 hover:bg-zinc-100 font-semibold px-8 py-6 rounded-lg text-base shadow-xl shadow-white/5 transition-all hover:scale-[1.02] flex items-center justify-center"
           >
             Upgrade to Pro

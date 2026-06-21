@@ -51,7 +51,7 @@ const slidesData = [
     btnPrimaryHref: "/dashboard",
     darkBtnSecondary: "Start Free",
     lightBtnSecondary: "Explore Features",
-    btnSecondaryHref: "/pricing",
+    btnSecondaryHref: "/plans",
     badgeLabel: "Weekly Progress",
     badgeTitle: "85% Completed",
     badgeColor: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
@@ -145,7 +145,12 @@ export default function HeroCarousel() {
   };
 
   return (
-    <div className="relative w-full min-h-[calc(100vh-4rem)] flex flex-col justify-center bg-transparent overflow-hidden">
+    <section
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="Featured Wisdom Carousel"
+      className="relative w-full min-h-[calc(100vh-4rem)] flex flex-col justify-center bg-transparent overflow-hidden"
+    >
       {/* Background gradients */}
       <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
         {isDark ? (
@@ -166,18 +171,20 @@ export default function HeroCarousel() {
         className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-12 lg:py-20 flex-grow flex items-center relative"
         onMouseEnter={stopTimer}
         onMouseLeave={startTimer}
+        onFocus={stopTimer}
+        onBlur={startTimer}
       >
         {/* Navigation Arrows */}
         <button
           onClick={handlePrev}
-          className="absolute left-2 sm:left-4 z-20 p-2 sm:p-3 rounded-full border border-zinc-200/50 dark:border-zinc-800/80 bg-white/80 dark:bg-zinc-950/80 hover:bg-zinc-100 dark:hover:bg-zinc-900 text-zinc-700 dark:text-zinc-300 transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer"
+          className="absolute left-2 sm:left-4 z-20 p-2 sm:p-3 rounded-full border border-zinc-200/50 dark:border-zinc-800/80 bg-white/80 dark:bg-zinc-950/80 hover:bg-zinc-100 dark:hover:bg-zinc-900 text-zinc-700 dark:text-zinc-300 transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 outline-none"
           aria-label="Previous Slide"
         >
           <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
         <button
           onClick={handleNext}
-          className="absolute right-2 sm:right-4 z-20 p-2 sm:p-3 rounded-full border border-zinc-200/50 dark:border-zinc-800/80 bg-white/80 dark:bg-zinc-950/80 hover:bg-zinc-100 dark:hover:bg-zinc-900 text-zinc-700 dark:text-zinc-300 transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer"
+          className="absolute right-2 sm:right-4 z-20 p-2 sm:p-3 rounded-full border border-zinc-200/50 dark:border-zinc-800/80 bg-white/80 dark:bg-zinc-950/80 hover:bg-zinc-100 dark:hover:bg-zinc-900 text-zinc-700 dark:text-zinc-300 transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 outline-none"
           aria-label="Next Slide"
         >
           <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -193,6 +200,9 @@ export default function HeroCarousel() {
               initial="enter"
               animate="center"
               exit="exit"
+              role="group"
+              aria-roledescription="slide"
+              aria-label={`Slide ${currentSlide + 1} of ${slidesData.length}`}
               className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center w-full"
             >
               {/* Left Column: Content */}
@@ -225,7 +235,7 @@ export default function HeroCarousel() {
                   <Button
                     as={Link}
                     href={currentSlideData.btnPrimaryHref}
-                    className={`font-semibold px-8 py-6 rounded-lg text-base shadow-lg transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer ${isDark
+                    className={`font-semibold px-8 py-6 rounded-lg text-base shadow-lg transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500 outline-none ${isDark
                         ? "bg-white text-zinc-950 hover:bg-zinc-100 shadow-white/5 hover:scale-[1.02]"
                         : "bg-[#27374D] text-white hover:bg-[#1f2b3c] shadow-zinc-900/10 hover:scale-[1.02]"
                       }`}
@@ -237,7 +247,7 @@ export default function HeroCarousel() {
                     as={Link}
                     href={currentSlideData.btnSecondaryHref}
                     variant="bordered"
-                    className={`font-semibold px-8 py-6 rounded-lg text-base transition-all duration-300 border-2 cursor-pointer ${isDark
+                    className={`font-semibold px-8 py-6 rounded-lg text-base transition-all duration-300 border-2 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500 outline-none ${isDark
                         ? "border-zinc-800 text-white hover:bg-zinc-900/40 hover:border-zinc-700"
                         : "border-zinc-200 text-zinc-800 hover:bg-zinc-50"
                       }`}
@@ -312,19 +322,21 @@ export default function HeroCarousel() {
       </div>
 
       {/* Slide Indicators / Dots */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2.5 z-20">
+      <div role="tablist" aria-label="Slide Selection" className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2.5 z-20">
         {slidesData.map((_, index) => (
           <button
             key={index}
             onClick={() => goToSlide(index)}
-            className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${index === currentSlide
+            role="tab"
+            aria-selected={index === currentSlide}
+            aria-label={`Go to slide ${index + 1}`}
+            className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 outline-none ${index === currentSlide
                 ? "w-8 bg-zinc-900 dark:bg-white"
                 : "w-2.5 bg-zinc-300 dark:bg-zinc-700 hover:bg-zinc-400 dark:hover:bg-zinc-600"
               }`}
-            aria-label={`Go to slide ${index + 1}`}
           />
         ))}
       </div>
-    </div>
+    </section>
   );
 }

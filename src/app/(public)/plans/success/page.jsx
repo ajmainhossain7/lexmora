@@ -195,7 +195,7 @@ function SuccessContent() {
                 {/* CTA Navigation Buttons */}
                 <div className="flex flex-col gap-3 pt-2">
                     <Button
-                        onClick={() => router.push("/dashboard/user")}
+                        onClick={() => router.push("/dashboard")}
                         className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl py-3.5 font-bold shadow-lg shadow-indigo-600/25 hover:shadow-xl hover:shadow-indigo-600/35 transition flex items-center justify-center gap-2 cursor-pointer"
                     >
                         <LayoutDashboard className="w-4 h-4" />

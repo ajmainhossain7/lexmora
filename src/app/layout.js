@@ -4,8 +4,6 @@ dns.setServers(["8.8.8.8", "8.8.4.4"]);
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "../providers/providers";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,9 +29,13 @@ export default function RootLayout({ children }) {
     >
       <body className="min-h-full flex flex-col">
         <Providers>
-          <Navbar />
-          <div className="flex-grow flex flex-col">{children}</div>
-          <Footer />
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-zinc-900 text-white dark:bg-blue-600 px-4 py-2 rounded-md z-[100] outline-none ring-2 ring-blue-500 font-semibold text-sm transition-all"
+          >
+            Skip to main content
+          </a>
+          {children}
         </Providers>
       </body>
     </html>

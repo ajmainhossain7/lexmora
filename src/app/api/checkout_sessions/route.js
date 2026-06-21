@@ -48,8 +48,9 @@ export async function POST(request) {
                 email: user.email,
             },
             success_url: `${origin}/plans/success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${origin}/plans?canceled=true`,
+            cancel_url: `${origin}/payment/cancel`,
         });
+
 
         if (contentType.includes('application/json')) {
             return NextResponse.json({ id: session.id, url: session.url });

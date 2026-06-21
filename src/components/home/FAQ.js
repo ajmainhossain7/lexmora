@@ -45,8 +45,11 @@ export default function FAQ() {
               className="rounded-2xl border border-zinc-200/60 dark:border-zinc-800/80 bg-[#F8FAFC] dark:bg-zinc-900/40 shadow-sm overflow-hidden"
             >
               <button
+                id={`faq-btn-${idx}`}
                 onClick={() => toggleAccordion(idx)}
-                className="w-full flex items-center justify-between p-6 text-left font-bold text-base sm:text-lg text-zinc-900 dark:text-white hover:bg-zinc-100/50 dark:hover:bg-zinc-900/60 transition-colors focus:outline-none"
+                aria-expanded={isOpen}
+                aria-controls={`faq-content-${idx}`}
+                className="w-full flex items-center justify-between p-6 text-left font-bold text-base sm:text-lg text-zinc-900 dark:text-white hover:bg-zinc-100/50 dark:hover:bg-zinc-900/60 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:z-10 cursor-pointer"
               >
                 <span>{faq.question}</span>
                 <motion.div
@@ -61,6 +64,9 @@ export default function FAQ() {
               <AnimatePresence initial={false}>
                 {isOpen && (
                   <motion.div
+                    id={`faq-content-${idx}`}
+                    role="region"
+                    aria-labelledby={`faq-btn-${idx}`}
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}

@@ -101,6 +101,19 @@ export default function LessonDetailPage() {
     checkFavorite(id).then(setFavorited);
   }, [id, user]);
 
+  // ── Handle escape key closure for report modal ────────────────────────────────
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setReportModalOpen(false);
+      }
+    };
+    if (reportModalOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [reportModalOpen]);
+
   // ── Like handler ────────────────────────────────────────────────────────────
   const handleLike = async () => {
     if (!user) { toast.error('Please sign in to like this lesson.'); return; }
@@ -481,11 +494,13 @@ export default function LessonDetailPage() {
                 {/* Input */}
                 <div className="flex-grow relative">
                   <textarea
+                    id="comment-textarea"
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
                     placeholder="Share your thoughts on this lesson…"
+                    aria-label="Write a comment"
                     rows={3}
-                    className="w-full px-4 py-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-sm font-body text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:border-blue-400 dark:focus:border-blue-600 transition-all resize-none shadow-sm"
+                    className="w-full px-4 py-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-sm font-body text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:border-blue-400 dark:focus:border-blue-600 transition-all resize-none shadow-sm focus-visible:ring-2 focus-visible:ring-blue-500"
                   />
                   <motion.button
                     whileTap={{ scale: 0.94 }}
@@ -608,11 +623,12 @@ export default function LessonDetailPage() {
 
               <form onSubmit={handleReportSubmit} className="space-y-4 font-body">
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1.5">Reason</label>
+                  <label htmlFor="report-reason" className="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1.5">Reason</label>
                   <select
+                    id="report-reason"
                     value={reportReason}
                     onChange={(e) => setReportReason(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-850 bg-white dark:bg-zinc-950 text-sm focus:outline-none transition-all cursor-pointer"
+                    className="w-full p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-850 bg-white dark:bg-zinc-950 text-sm focus:outline-none transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500"
                   >
                     <option value="Spam">Spam or Misleading</option>
                     <option value="Harassment">Harassment or Hate Speech</option>
@@ -623,13 +639,14 @@ export default function LessonDetailPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1.5">Details (Optional)</label>
+                  <label htmlFor="report-details" className="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1.5">Details (Optional)</label>
                   <textarea
+                    id="report-details"
                     value={reportDetails}
                     onChange={(e) => setReportDetails(e.target.value)}
                     placeholder="Provide any additional context..."
                     rows={3}
-                    className="w-full p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-850 bg-white dark:bg-zinc-950 text-sm focus:outline-none transition-all resize-none"
+                    className="w-full p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-850 bg-white dark:bg-zinc-950 text-sm focus:outline-none transition-all resize-none focus-visible:ring-2 focus-visible:ring-blue-500"
                   />
                 </div>
 

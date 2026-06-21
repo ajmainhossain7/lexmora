@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Trash2, ShieldAlert, X, User, Mail, FileText, Calendar, AlertTriangle } from 'lucide-react';
 import { Button } from '@heroui/react';
@@ -11,6 +11,19 @@ export default function ReportsModeration({
   handleIgnoreReports
 }) {
   const [selectedGroup, setSelectedGroup] = useState(null);
+
+  // Handle escape key closure for reports log modal
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setSelectedGroup(null);
+      }
+    };
+    if (selectedGroup) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedGroup]);
 
   // Group reports by lessonId
   const grouped = {};
@@ -147,7 +160,8 @@ export default function ReportsModeration({
                 </div>
                 <button
                   onClick={() => setSelectedGroup(null)}
-                  className="p-1 rounded-lg text-zinc-450 hover:text-zinc-650 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer"
+                  aria-label="Close modal"
+                  className="p-1 rounded-lg text-zinc-450 hover:text-zinc-650 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500 outline-none"
                 >
                   <X className="w-5 h-5" />
                 </button>

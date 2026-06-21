@@ -15,6 +15,7 @@ export const getSessionToken = () => {
   return '';
 };
 
+
 export const getAuthHeaders = () => {
   const token = getSessionToken();
   return token ? { 'Authorization': `Bearer ${token}` } : {};

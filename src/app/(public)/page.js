@@ -2,16 +2,31 @@
 
 import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
+import dynamic from 'next/dynamic';
+import { getFeaturedLessons } from '@/lib/api/lessons';
 
 // Modular Home Sections
-import HeroCarousel from '../components/home/HeroCarousel';
-import FeaturedLessons from '../components/home/FeaturedLessons';
-import WhyLearning from '../components/home/WhyLearning';
-import ContributorsAndSaved from '../components/home/ContributorsAndSaved';
-import UpgradeCTA from '../components/home/UpgradeCTA';
-import Testimonials from '../components/home/Testimonials';
-import FAQ from '../components/home/FAQ';
-import Newsletter from '../components/home/Newsletter';
+import HeroCarousel from '@/components/home/HeroCarousel';
+import FeaturedLessons from '@/components/home/FeaturedLessons';
+
+const WhyLearning = dynamic(() => import('@/components/home/WhyLearning'), {
+  loading: () => <div className="py-12 text-center text-slate-500 animate-pulse">Loading benefits...</div>
+});
+const ContributorsAndSaved = dynamic(() => import('@/components/home/ContributorsAndSaved'), {
+  loading: () => <div className="py-12 text-center text-slate-500 animate-pulse">Loading stats...</div>
+});
+const UpgradeCTA = dynamic(() => import('@/components/home/UpgradeCTA'), {
+  loading: () => <div className="py-12 text-center text-slate-500 animate-pulse">Loading...</div>
+});
+const Testimonials = dynamic(() => import('@/components/home/Testimonials'), {
+  loading: () => <div className="py-12 text-center text-slate-500 animate-pulse">Loading testimonials...</div>
+});
+const FAQ = dynamic(() => import('@/components/home/FAQ'), {
+  loading: () => <div className="py-12 text-center text-slate-500 animate-pulse">Loading FAQ...</div>
+});
+const Newsletter = dynamic(() => import('@/components/home/Newsletter'), {
+  loading: () => <div className="py-12 text-center text-slate-500 animate-pulse">Loading newsletter...</div>
+});
 
 export default function Home() {
   const { resolvedTheme } = useTheme();
@@ -28,9 +43,8 @@ export default function Home() {
   useEffect(() => {
     async function fetchFeaturedLessons() {
       try {
-        const res = await fetch('http://localhost:5000/api/lessons/featured');
-        if (res.ok) {
-          const data = await res.json();
+        const data = await getFeaturedLessons();
+        if (data) {
           setLessons(data);
         }
       } catch (err) {

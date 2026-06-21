@@ -1,18 +1,28 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Check, X, ShieldAlert, Sparkles, Star, Zap, CheckCircle2 } from "lucide-react";
 import { Button } from "@heroui/react";
 import { useSession } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 
-export default function PlansPage() {
+function PlansContent() {
     const { data: session } = useSession();
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const searchParams = useSearchParams();
 
     const isPremium = session?.user?.plan === "user_premium" || session?.user?.role === "admin";
+
+    useEffect(() => {
+        if (searchParams.get("canceled") === "true") {
+            toast.error("Payment checkout was canceled. Feel free to upgrade whenever you are ready!", {
+                duration: 4000,
+            });
+            router.replace("/plans");
+        }
+    }, [searchParams, router]);
 
     const features = [
         { name: "Browse Public Free Lessons", free: true, premium: true },
@@ -220,5 +230,18 @@ export default function PlansPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function PlansPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center py-16 px-4">
+                <div className="w-10 h-10 border-2 border-indigo-600 border-t-transparent animate-spin rounded-full" />
+                <p className="mt-4 text-slate-500 dark:text-zinc-400 text-sm">Loading pricing plans...</p>
+            </div>
+        }>
+            <PlansContent />
+        </Suspense>
     );
 }

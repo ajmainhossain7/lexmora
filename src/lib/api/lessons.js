@@ -25,3 +25,7 @@ export const getLessonById = async (id) => {
 export const getMyLessons = async () => {
   return await protectedFetch('/api/my/lessons');
 };
+
+export const getFeaturedLessons = async () => {
+  return await serverFetch('/api/lessons/featured');
+};

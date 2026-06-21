@@ -19,6 +19,18 @@ export default function Navbar() {
   const { data: session, isPending } = useSession();
   const user = session?.user;
 
+  // Handle escape key closure for dropdowns & mobile menu
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setIsDropdownOpen(false);
+        setIsMenuOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const handleSignOut = async () => {
     try {
       await signOut({
@@ -46,8 +58,7 @@ export default function Navbar() {
   if (user) {
     menuItems.push({ label: 'Add Lesson', href: '/dashboard/add-lesson' });
     menuItems.push({ label: 'My Lessons', href: '/dashboard/my-lessons' });
-    const dashboardHref = user.role === 'admin' ? '/dashboard/admin' : '/dashboard/user';
-    menuItems.push({ label: 'Dashboard', href: dashboardHref });
+    menuItems.push({ label: 'Dashboard', href: '/dashboard' });
   }
 
   if (!user || !isPremium) {
@@ -55,12 +66,12 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-zinc-200/50 dark:border-zinc-800/40 bg-white/80 dark:bg-[#0A0D1A]/80 backdrop-blur-md transition-colors duration-300">
+    <nav aria-label="Main Navigation" className="sticky top-0 z-50 w-full border-b border-zinc-200/50 dark:border-zinc-800/40 bg-white/80 dark:bg-[#0A0D1A]/80 backdrop-blur-md transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           {/* Logo & Brand */}
           <div className="flex items-center">
-            <Link href="/" className="flex items-center gap-1">
+            <Link href="/" className="flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md outline-none px-1">
               <span className="font-bold text-xl tracking-tight text-zinc-900 dark:text-white font-headline">
                 Lexmora
               </span>
@@ -75,7 +86,7 @@ export default function Navbar() {
                 <div key={item.label} className="relative flex items-center h-full">
                   <Link
                     href={item.href}
-                    className={`text-sm font-semibold transition-colors duration-200 ${isActive
+                    className={`text-sm font-semibold transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md outline-none px-2 py-1 ${isActive
                         ? 'text-zinc-950 dark:text-white'
                         : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200'
                       }`}
@@ -100,7 +111,10 @@ export default function Navbar() {
               <div className="relative">
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center gap-2 focus:outline-none cursor-pointer"
+                  className="flex items-center gap-2 focus:outline-none cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500 rounded-lg outline-none px-2 py-1"
+                  aria-label="User menu"
+                  aria-expanded={isDropdownOpen}
+                  aria-haspopup="true"
                 >
                   <div className="relative">
                     <img
@@ -133,6 +147,7 @@ export default function Navbar() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
+                        role="menu"
                         className="absolute right-0 mt-2 w-56 bg-white dark:bg-[#0f1224] border border-zinc-200/80 dark:border-zinc-800/80 rounded-xl shadow-xl z-20 overflow-hidden"
                       >
                         <div className="px-4 py-3 border-b border-zinc-100 dark:border-zinc-850">
@@ -141,24 +156,27 @@ export default function Navbar() {
                         </div>
                         <div className="p-1.5 space-y-1">
                           <Link
-                            href={user.role === 'admin' ? '/dashboard/admin?tab=profile' : '/dashboard/user?tab=profile'}
+                            href="/dashboard?tab=profile"
                             onClick={() => setIsDropdownOpen(false)}
-                            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 rounded-lg transition"
+                            role="menuitem"
+                            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 rounded-lg transition focus-visible:bg-zinc-100 dark:focus-visible:bg-zinc-800/50 outline-none"
                           >
                             <User className="w-4 h-4" />
                             Profile
                           </Link>
                           <Link
-                            href={user.role === 'admin' ? '/dashboard/admin' : '/dashboard/user'}
+                            href="/dashboard"
                             onClick={() => setIsDropdownOpen(false)}
-                            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 rounded-lg transition"
+                            role="menuitem"
+                            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 rounded-lg transition focus-visible:bg-zinc-100 dark:focus-visible:bg-zinc-800/50 outline-none"
                           >
                             <LayoutDashboard className="w-4 h-4" />
                             Dashboard
                           </Link>
                           <button
                             onClick={handleSignOut}
-                            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition text-left cursor-pointer"
+                            role="menuitem"
+                            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition text-left cursor-pointer focus-visible:bg-red-50 dark:focus-visible:bg-red-950/20 outline-none"
                           >
                             <LogOut className="w-4 h-4" />
                             Log Out
@@ -173,7 +191,7 @@ export default function Navbar() {
               <>
                 <Link
                   href="/auth/signin"
-                  className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors duration-200"
+                  className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md outline-none px-2 py-1"
                 >
                   Login
                 </Link>
@@ -181,7 +199,7 @@ export default function Navbar() {
                   as={Link}
                   href="/auth/signup"
                   color="primary"
-                  className="bg-zinc-900 text-white dark:bg-blue-600 dark:text-white font-semibold text-sm px-5 py-2 h-9 rounded-md transition-all hover:bg-zinc-800 dark:hover:bg-blue-500"
+                  className="bg-zinc-900 text-white dark:bg-blue-600 dark:text-white font-semibold text-sm px-5 py-2 h-9 rounded-md transition-all hover:bg-zinc-800 dark:hover:bg-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 outline-none"
                 >
                   Get Started
                 </Button>
@@ -194,8 +212,9 @@ export default function Navbar() {
             <ThemeToggle />
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-2 rounded-lg text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
+              className="p-2 rounded-lg text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 outline-none"
               aria-label="Toggle menu"
+              aria-expanded={isMenuOpen}
             >
               {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -212,7 +231,7 @@ export default function Navbar() {
             exit={{ opacity: 0, height: 0 }}
             className="sm:hidden border-b border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-[#0A0D1A] overflow-hidden"
           >
-            <div className="px-4 pt-2 pb-4 space-y-1">
+            <div className="px-4 pt-2 pb-4 space-y-1" role="menu">
               {menuItems.map((item) => {
                 const isActive = pathname === item.href;
                 return (
@@ -220,7 +239,8 @@ export default function Navbar() {
                     key={item.label}
                     href={item.href}
                     onClick={() => setIsMenuOpen(false)}
-                    className={`block px-3 py-2 rounded-md text-base font-semibold transition-all ${isActive
+                    role="menuitem"
+                    className={`block px-3 py-2 rounded-md text-base font-semibold transition-all focus-visible:ring-2 focus-visible:ring-blue-500 outline-none ${isActive
                         ? 'text-zinc-950 dark:text-white bg-zinc-50 dark:bg-zinc-900'
                         : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200'
                       }`}
@@ -262,7 +282,7 @@ export default function Navbar() {
                       onClick={handleSignOut}
                       color="danger"
                       variant="flat"
-                      className="w-full font-semibold rounded-md"
+                      className="w-full font-semibold rounded-md focus-visible:ring-2 focus-visible:ring-red-500 outline-none"
                     >
                       Log Out
                     </Button>
@@ -273,7 +293,7 @@ export default function Navbar() {
                       as={Link}
                       href="/auth/signin"
                       variant="bordered"
-                      className="w-full border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-md font-semibold"
+                      className="w-full border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-md font-semibold focus-visible:ring-2 focus-visible:ring-blue-500 outline-none"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Login
@@ -281,7 +301,7 @@ export default function Navbar() {
                     <Button
                       as={Link}
                       href="/auth/signup"
-                      className="w-full bg-zinc-900 text-white dark:bg-blue-600 dark:text-white rounded-md font-semibold"
+                      className="w-full bg-zinc-900 text-white dark:bg-blue-600 dark:text-white rounded-md font-semibold focus-visible:ring-2 focus-visible:ring-blue-500 outline-none"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Get Started
