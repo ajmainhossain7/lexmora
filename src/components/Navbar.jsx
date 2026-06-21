@@ -36,15 +36,22 @@ export default function Navbar() {
     }
   };
 
+  const isPremium = user?.plan === 'user_premium' || user?.role === 'admin';
+
   const menuItems = [
     { label: 'Home', href: '/' },
     { label: 'Public Lessons', href: '/lessons' },
-    { label: 'Pricing', href: '/plans' },
   ];
 
   if (user) {
+    menuItems.push({ label: 'Add Lesson', href: '/dashboard/add-lesson' });
+    menuItems.push({ label: 'My Lessons', href: '/dashboard/my-lessons' });
     const dashboardHref = user.role === 'admin' ? '/dashboard/admin' : '/dashboard/user';
     menuItems.push({ label: 'Dashboard', href: dashboardHref });
+  }
+
+  if (!user || !isPremium) {
+    menuItems.push({ label: 'Pricing', href: '/plans' });
   }
 
   return (
@@ -95,14 +102,26 @@ export default function Navbar() {
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className="flex items-center gap-2 focus:outline-none cursor-pointer"
                 >
-                  <img
-                    src={user.image || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(user.name)}`}
-                    alt={user.name}
-                    className="w-8 h-8 rounded-full border border-zinc-200 dark:border-zinc-800 object-cover"
-                  />
+                  <div className="relative">
+                    <img
+                      src={user.image || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(user.name)}`}
+                      alt={user.name}
+                      className="w-8 h-8 rounded-full border border-zinc-200 dark:border-zinc-800 object-cover"
+                    />
+                    {isPremium && (
+                      <span className="absolute -bottom-1 -right-1 bg-amber-500 text-white rounded-full text-[9px] w-4 h-4 flex items-center justify-center border border-white dark:border-zinc-900 shadow animate-pulse">
+                        ⭐
+                      </span>
+                    )}
+                  </div>
                   <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 hidden md:block">
                     {user.name}
                   </span>
+                  {isPremium && (
+                    <span className="hidden md:inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400">
+                      Premium
+                    </span>
+                  )}
                   <ChevronDown className="w-4 h-4 text-zinc-500" />
                 </button>
 
@@ -121,6 +140,14 @@ export default function Navbar() {
                           <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">{user.email}</p>
                         </div>
                         <div className="p-1.5 space-y-1">
+                          <Link
+                            href={user.role === 'admin' ? '/dashboard/admin?tab=profile' : '/dashboard/user?tab=profile'}
+                            onClick={() => setIsDropdownOpen(false)}
+                            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 rounded-lg transition"
+                          >
+                            <User className="w-4 h-4" />
+                            Profile
+                          </Link>
                           <Link
                             href={user.role === 'admin' ? '/dashboard/admin' : '/dashboard/user'}
                             onClick={() => setIsDropdownOpen(false)}
@@ -207,14 +234,28 @@ export default function Navbar() {
                 {user ? (
                   <div className="space-y-3">
                     <div className="flex items-center gap-3 px-3 py-2">
-                      <img
-                        src={user.image || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(user.name)}`}
-                        alt={user.name}
-                        className="w-10 h-10 rounded-full object-cover"
-                      />
+                      <div className="relative">
+                        <img
+                          src={user.image || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(user.name)}`}
+                          alt={user.name}
+                          className="w-10 h-10 rounded-full object-cover"
+                        />
+                        {isPremium && (
+                          <span className="absolute -bottom-1 -right-1 bg-amber-500 text-white rounded-full text-[10px] w-5 h-5 flex items-center justify-center border border-white dark:border-zinc-900 shadow">
+                            ⭐
+                          </span>
+                        )}
+                      </div>
                       <div>
-                        <p className="text-sm font-semibold text-zinc-900 dark:text-white">{user.name}</p>
-                        <p className="text-xs text-zinc-500 dark:text-zinc-400">{user.email}</p>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <p className="text-sm font-semibold text-zinc-900 dark:text-white truncate max-w-[120px]">{user.name}</p>
+                          {isPremium && (
+                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400">
+                              Premium
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate max-w-[180px]">{user.email}</p>
                       </div>
                     </div>
                     <Button

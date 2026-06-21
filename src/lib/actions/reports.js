@@ -7,3 +7,8 @@ export const createReport = async (reportData) => {
 export const deleteReport = async (id) => {
   return await serverMutation(`/api/reports/${id}`, {}, 'DELETE');
 };
+
+export const dismissReportsForLesson = async (lessonId) => {
+  return await serverMutation(`/api/reports/lesson/${lessonId}`, {}, 'DELETE');
+};
+

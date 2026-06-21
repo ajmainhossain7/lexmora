@@ -2,15 +2,131 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { CheckCircle2, Star, ArrowRight, BookOpen, LayoutDashboard, Award } from "lucide-react";
+import { CheckCircle2, Star, ArrowRight, BookOpen, LayoutDashboard, Award, ShieldAlert, Loader2 } from "lucide-react";
 import { Button } from "@heroui/react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { authClient } from "@/lib/auth-client";
+import toast from "react-hot-toast";
 
 function SuccessContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const sessionId = searchParams.get("session_id");
+
+    const [verifying, setVerifying] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        if (!sessionId) {
+            setVerifying(false);
+            return;
+        }
+
+        let isMounted = true;
+        const verifyPayment = async () => {
+            try {
+                const res = await fetch(`/api/checkout_sessions?session_id=${sessionId}`);
+                if (!res.ok) {
+                    throw new Error("Server verification error");
+                }
+                const data = await res.json();
+                if (data.success) {
+                    // Update Better Auth client-side session cache
+                    await authClient.getSession({ force: true });
+                    if (isMounted) {
+                        toast.success("Premium membership activated successfully!");
+                        router.refresh();
+                    }
+                } else {
+                    if (isMounted) {
+                        setError(data.error || "Stripe checkout session not fully completed.");
+                    }
+                }
+            } catch (err) {
+                console.error("Verification error:", err);
+                if (isMounted) {
+                    setError("Failed to verify payment session. Please refresh or contact support.");
+                }
+            } finally {
+                if (isMounted) {
+                    setVerifying(false);
+                }
+            }
+        };
+
+        verifyPayment();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [sessionId, router]);
+
+    if (verifying) {
+        return (
+            <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-zinc-100 flex flex-col items-center justify-center py-16 px-4 transition-colors duration-300 relative overflow-hidden">
+                <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
+                    <div className="absolute top-[20%] left-[50%] -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-indigo-500/10 dark:bg-indigo-500/5 blur-[120px]" />
+                </div>
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    className="max-w-md w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-xl text-center space-y-6 relative z-10"
+                >
+                    <Loader2 className="w-12 h-12 stroke-[1.5] text-indigo-500 animate-spin mx-auto" />
+                    <div className="space-y-2">
+                        <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                            Verifying Payment...
+                        </h1>
+                        <p className="text-sm text-slate-500 dark:text-zinc-400">
+                            Please wait while we secure your upgrade status. This will only take a moment.
+                        </p>
+                    </div>
+                </motion.div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-808 dark:text-zinc-100 flex flex-col items-center justify-center py-16 px-4 transition-colors duration-300 relative overflow-hidden">
+                <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
+                    <div className="absolute top-[20%] left-[50%] -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-rose-500/10 dark:bg-rose-500/5 blur-[120px]" />
+                </div>
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    className="max-w-md w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-xl text-center space-y-6 relative z-10"
+                >
+                    <div className="w-16 h-16 rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/40 flex items-center justify-center text-rose-500 mx-auto">
+                        <ShieldAlert className="w-10 h-10 stroke-[1.5]" />
+                    </div>
+                    <div className="space-y-2">
+                        <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                            Verification Failed
+                        </h1>
+                        <p className="text-sm text-slate-500 dark:text-zinc-400 leading-relaxed max-w-xs mx-auto">
+                            {error}
+                        </p>
+                    </div>
+                    <div className="flex flex-col gap-3 pt-2">
+                        <Button
+                            onClick={() => window.location.reload()}
+                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl py-3.5 font-bold shadow-lg shadow-indigo-600/25 hover:shadow-xl hover:shadow-indigo-600/35 transition cursor-pointer"
+                        >
+                            Retry Verification
+                        </Button>
+                        <Button
+                            onClick={() => router.push("/plans")}
+                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-zinc-300 rounded-xl py-3.5 font-semibold hover:border-slate-450 dark:hover:border-slate-500 transition cursor-pointer"
+                        >
+                            Return to Pricing
+                        </Button>
+                    </div>
+                </motion.div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-808 dark:text-zinc-100 flex flex-col items-center justify-center py-16 px-4 transition-colors duration-300 relative overflow-hidden">
