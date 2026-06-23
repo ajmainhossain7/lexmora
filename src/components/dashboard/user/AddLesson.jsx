@@ -1,4 +1,6 @@
 import { Button } from "@heroui/react";
+import { uploadImage } from "@/utils/uploadImage";
+import toast from "react-hot-toast";
 
 export default function AddLesson({
     handleCreateLesson,
@@ -85,15 +87,39 @@ export default function AddLesson({
                 </div>
 
                 <div>
-                    <label htmlFor="lesson-cover" className="block text-sm font-semibold text-slate-755 dark:text-zinc-300 mb-2">Cover Image URL (Optional)</label>
-                    <input
-                        id="lesson-cover"
-                        type="text"
-                        placeholder="https://images.unsplash.com/..."
-                        value={coverImage}
-                        onChange={(e) => setCoverImage(e.target.value)}
-                        className="w-full p-3 bg-slate-50 dark:bg-slate-950 text-slate-805 dark:text-white border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-                    />
+                    <label className="block text-sm font-semibold text-slate-755 dark:text-zinc-300 mb-2">Cover Image (Optional)</label>
+                    <div className="space-y-3">
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                    const toastId = toast.loading("Uploading image to ImgBB...");
+                                    const url = await uploadImage(file);
+                                    toast.dismiss(toastId);
+                                    if (url) {
+                                        setCoverImage(url);
+                                        toast.success("Image uploaded successfully!");
+                                    }
+                                }
+                            }}
+                            className="w-full p-2.5 text-sm bg-slate-50 dark:bg-slate-950 text-slate-805 dark:text-white border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-600 dark:file:bg-indigo-950/40 dark:file:text-indigo-400 file:cursor-pointer hover:file:bg-indigo-100 transition"
+                        />
+                        {coverImage && (
+                            <div className="relative w-full max-w-xs h-32 rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-800">
+                                <img src={coverImage} alt="Cover preview" className="w-full h-full object-cover" />
+                                <button
+                                    type="button"
+                                    onClick={() => setCoverImage("")}
+                                    className="absolute top-1.5 right-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 text-xs transition cursor-pointer"
+                                    title="Remove Image"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 <div className="grid sm:grid-cols-2 gap-6">

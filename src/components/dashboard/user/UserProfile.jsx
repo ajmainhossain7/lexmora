@@ -1,4 +1,6 @@
 import { Button } from "@heroui/react";
+import { uploadImage } from "@/utils/uploadImage";
+import toast from "react-hot-toast";
 
 export default function UserProfile({
     user,
@@ -80,15 +82,39 @@ export default function UserProfile({
                         </div>
 
                         <div>
-                            <label htmlFor="profile-avatar" className="block text-sm font-semibold text-slate-700 dark:text-zinc-300 mb-2">Avatar URL</label>
-                            <input
-                                id="profile-avatar"
-                                type="text"
-                                value={profileImage}
-                                onChange={(e) => setProfileImage(e.target.value)}
-                                placeholder="https://images.unsplash.com/..."
-                                className="w-full p-3 bg-slate-50 dark:bg-slate-950 text-slate-808 dark:text-white border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-                            />
+                            <label className="block text-sm font-semibold text-slate-700 dark:text-zinc-300 mb-2">Avatar Profile Image</label>
+                            <div className="space-y-3">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={async (e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            const toastId = toast.loading("Uploading avatar to ImgBB...");
+                                            const url = await uploadImage(file);
+                                            toast.dismiss(toastId);
+                                            if (url) {
+                                                setProfileImage(url);
+                                                toast.success("Avatar uploaded successfully!");
+                                            }
+                                        }
+                                    }}
+                                    className="w-full p-2.5 text-sm bg-slate-50 dark:bg-slate-950 text-slate-808 dark:text-white border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-600 dark:file:bg-indigo-950/40 dark:file:text-indigo-400 file:cursor-pointer hover:file:bg-indigo-100 transition"
+                                />
+                                {profileImage && (
+                                    <div className="relative w-20 h-20 rounded-full overflow-hidden border border-zinc-200 dark:border-zinc-800">
+                                        <img src={profileImage} alt="Avatar preview" className="w-full h-full object-cover" />
+                                        <button
+                                            type="button"
+                                            onClick={() => setProfileImage("")}
+                                            className="absolute top-0 right-0 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 text-[10px] leading-none transition cursor-pointer"
+                                            title="Remove Image"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         <Button
