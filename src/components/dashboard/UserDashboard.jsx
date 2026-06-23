@@ -203,7 +203,10 @@ export default function UserDashboard() {
 
     // Calculate Dashboard stats
     const totalAdded = myLessons.length;
-    const totalLikes = myLessons.reduce((acc, curr) => acc + (curr.likes?.length || 0), 0);
+    const totalLikes = myLessons.reduce((acc, curr) => {
+        const count = typeof curr.likes === 'number' ? curr.likes : (Array.isArray(curr.likes) ? curr.likes.length : 0);
+        return acc + count;
+    }, 0);
     const totalSaved = favorites.length;
 
     return (
@@ -249,6 +252,7 @@ export default function UserDashboard() {
                     categories={categories}
                     tones={tones}
                     submitting={submitting}
+                    isPremium={user?.plan === "user_premium" || user?.role === "admin"}
                 />
             )}
 

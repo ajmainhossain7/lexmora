@@ -80,9 +80,11 @@ export default function LessonDetailPage() {
         return;
       }
       setLesson(data);
-      setLikeCount(data.likes?.length || 0);
+      const likesCount = typeof data.likes === 'number' ? data.likes : (Array.isArray(data.likes) ? data.likes.length : 0);
+      setLikeCount(likesCount);
       if (user) {
-        setLiked(data.likes?.includes(user.id) || false);
+        const isLiked = Array.isArray(data.likes) ? data.likes.includes(user.id) : false;
+        setLiked(isLiked);
       }
       setLoading(false);
     }
@@ -444,7 +446,7 @@ export default function LessonDetailPage() {
                     </Link>
                     {!user && (
                       <Link
-                        href="/auth/signin"
+                        href="/signin"
                         className="inline-flex items-center gap-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 font-semibold px-6 py-3 rounded-xl text-sm transition-all hover:border-zinc-400"
                       >
                         Sign In
@@ -517,7 +519,7 @@ export default function LessonDetailPage() {
           ) : (
             <div className="mb-8 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/40 p-6 text-center">
               <p className="text-sm text-zinc-500 dark:text-zinc-400 font-body">
-                <Link href="/auth/signin" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">Sign in</Link>{' '}
+                <Link href="/signin" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">Sign in</Link>{' '}
                 to join the discussion.
               </p>
             </div>

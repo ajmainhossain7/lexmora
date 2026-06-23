@@ -38,7 +38,7 @@ function PlansContent() {
     const handleUpgrade = async () => {
         if (!session) {
             toast.error("Please log in or sign up first to upgrade!");
-            router.push("/auth/signin");
+            router.push("/signin");
             return;
         }
 

@@ -190,14 +190,14 @@ export default function Navbar() {
             ) : (
               <>
                 <Link
-                  href="/auth/signin"
+                  href="/signin"
                   className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md outline-none px-2 py-1"
                 >
                   Login
                 </Link>
                 <Button
                   as={Link}
-                  href="/auth/signup"
+                  href="/signup"
                   color="primary"
                   className="bg-zinc-900 text-white dark:bg-blue-600 dark:text-white font-semibold text-sm px-5 py-2 h-9 rounded-md transition-all hover:bg-zinc-800 dark:hover:bg-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 outline-none"
                 >
@@ -291,7 +291,7 @@ export default function Navbar() {
                   <div className="flex flex-col gap-2">
                     <Button
                       as={Link}
-                      href="/auth/signin"
+                      href="/signin"
                       variant="bordered"
                       className="w-full border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-md font-semibold focus-visible:ring-2 focus-visible:ring-blue-500 outline-none"
                       onClick={() => setIsMenuOpen(false)}
@@ -300,7 +300,7 @@ export default function Navbar() {
                     </Button>
                     <Button
                       as={Link}
-                      href="/auth/signup"
+                      href="/signup"
                       className="w-full bg-zinc-900 text-white dark:bg-blue-600 dark:text-white rounded-md font-semibold focus-visible:ring-2 focus-visible:ring-blue-500 outline-none"
                       onClick={() => setIsMenuOpen(false)}
                     >

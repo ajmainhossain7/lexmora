@@ -3,7 +3,7 @@
 import { useEffect, Suspense } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
-import { LayoutDashboard, BookOpen, PlusCircle, Heart, Shield, Settings, Loader2, Flag } from "lucide-react";
+import { LayoutDashboard, BookOpen, PlusCircle, Heart, Shield, Settings, Loader2, Flag, Home as HomeIcon, Globe } from "lucide-react";
 import Link from "next/link";
 
 function SidebarNav({ sidebarItems, pathname }) {
@@ -69,27 +69,44 @@ function SidebarContainer({ session }) {
         <>
             <SidebarNav sidebarItems={sidebarItems} pathname={pathname} />
 
-            {isAdmin && (
-                <div className="mt-auto pt-4 border-t border-zinc-100 dark:border-zinc-850">
-                    {isUserView ? (
-                        <Link
-                            href="/dashboard"
-                            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white transition focus-visible:ring-2 focus-visible:ring-blue-500 outline-none"
-                        >
-                            <Shield className="w-4.5 h-4.5 text-indigo-500" />
-                            Go to Admin View
-                        </Link>
-                    ) : (
-                        <Link
-                            href="/dashboard?view=user"
-                            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white transition focus-visible:ring-2 focus-visible:ring-blue-500 outline-none"
-                        >
-                            <Shield className="w-4.5 h-4.5 text-amber-500" />
-                            Go to User View
-                        </Link>
-                    )}
-                </div>
-            )}
+            <div className="mt-auto pt-4 border-t border-zinc-200/60 dark:border-zinc-800/60 space-y-1">
+                <Link
+                    href="/"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white transition focus-visible:ring-2 focus-visible:ring-blue-500 outline-none"
+                >
+                    <HomeIcon className="w-4.5 h-4.5 text-blue-500" />
+                    Go to Home
+                </Link>
+                <Link
+                    href="/lessons"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white transition focus-visible:ring-2 focus-visible:ring-blue-500 outline-none"
+                >
+                    <Globe className="w-4.5 h-4.5 text-emerald-500" />
+                    Public Lessons
+                </Link>
+
+                {isAdmin && (
+                    <div className="pt-2 border-t border-zinc-200/40 dark:border-zinc-800/40">
+                        {isUserView ? (
+                            <Link
+                                href="/dashboard"
+                                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white transition focus-visible:ring-2 focus-visible:ring-blue-500 outline-none"
+                            >
+                                <Shield className="w-4.5 h-4.5 text-indigo-500" />
+                                Go to Admin View
+                            </Link>
+                        ) : (
+                            <Link
+                                href="/dashboard?view=user"
+                                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white transition focus-visible:ring-2 focus-visible:ring-blue-500 outline-none"
+                            >
+                                <Shield className="w-4.5 h-4.5 text-amber-500" />
+                                Go to User View
+                            </Link>
+                        )}
+                    </div>
+                )}
+            </div>
         </>
     );
 }
@@ -100,7 +117,7 @@ export default function DashboardLayout({ children }) {
 
     useEffect(() => {
         if (!isPending && !session) {
-            router.push("/auth/signin");
+            router.push("/signin");
         }
     }, [session, isPending, router]);
 

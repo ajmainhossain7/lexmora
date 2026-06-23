@@ -8,12 +8,12 @@ const nextConfig = {
     return [
       {
         source: '/dashboard/add-lesson',
-        destination: '/dashboard/user?tab=add',
+        destination: '/dashboard?tab=add',
         permanent: true,
       },
       {
         source: '/dashboard/my-lessons',
-        destination: '/dashboard/user?tab=my',
+        destination: '/dashboard?tab=my',
         permanent: true,
       },
     ];

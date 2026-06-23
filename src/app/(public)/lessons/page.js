@@ -3,16 +3,18 @@
 import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, SlidersHorizontal, ArrowUpDown, CornerDownRight, ArrowRight, Frown, Sparkles, Heart, Bookmark } from 'lucide-react';
-import { Button } from '@heroui/react';
+import { Search, SlidersHorizontal, ArrowUpDown, CornerDownRight, ArrowRight, Frown, Sparkles, Heart, Lock } from 'lucide-react';
+import { Button, Pagination } from '@heroui/react';
 import Link from 'next/link';
 import { getLessons } from '@/lib/api/lessons';
+import { useSession } from '@/lib/auth-client';
 
 const categories = ['All', 'Resilience', 'Focus', 'Growth', 'Strategy', 'Relationships', 'Finance'];
 const emotionalTones = ['All', 'Hopeful', 'Resilient', 'Reflective', 'Motivated', 'Grateful'];
 
 export default function Lessons() {
   const { resolvedTheme } = useTheme();
+  const { data: session } = useSession();
   const [mounted, setMounted] = useState(false);
   const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,12 +22,20 @@ export default function Lessons() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedTone, setSelectedTone] = useState('All');
   const [sortBy, setSortBy] = useState('newest'); // newest, oldest, title-asc, title-desc
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const perPage = 6;
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Fetch lessons when search or category changes
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [search, selectedCategory, selectedTone]);
+
+  // Fetch lessons when search, category, tone, sortBy, or page changes
   useEffect(() => {
     async function fetchLessonsData() {
       setLoading(true);
@@ -34,15 +44,21 @@ export default function Lessons() {
           search,
           category: selectedCategory,
           emotionalTone: selectedTone,
+          sortBy,
+          page,
+          perPage,
         });
-        if (data) {
-          setLessons(data);
+        if (data && data.lessons) {
+          setLessons(data.lessons);
+          setTotal(data.total);
         } else {
-          setLessons([]);
+          setLessons(Array.isArray(data) ? data : []);
+          setTotal(Array.isArray(data) ? data.length : 0);
         }
       } catch (err) {
         console.error('Error fetching lessons:', err);
         setLessons([]);
+        setTotal(0);
       } finally {
         setLoading(false);
       }
@@ -54,26 +70,14 @@ export default function Lessons() {
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [search, selectedCategory, selectedTone]);
+  }, [search, selectedCategory, selectedTone, sortBy, page]);
 
   const isDark = mounted ? resolvedTheme === 'dark' : true;
 
-  // Client-side sorting
-  const sortedLessons = [...lessons].sort((a, b) => {
-    if (sortBy === 'newest') {
-      return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
-    }
-    if (sortBy === 'oldest') {
-      return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
-    }
-    if (sortBy === 'title-asc') {
-      return (a.title || '').localeCompare(b.title || '');
-    }
-    if (sortBy === 'title-desc') {
-      return (b.title || '').localeCompare(a.title || '');
-    }
-    return 0;
-  });
+  // Lessons are sorted server-side
+  const sortedLessons = lessons;
+
+  const totalPages = Math.ceil(total / perPage);
 
   const getCategoryStyles = (category) => {
     return 'bg-[#E2E8F0] text-[#27374D] border-[#E2E8F0] dark:bg-[#27374D]/40 dark:text-[#9DB2BF] dark:border-[#27374D]/50';
@@ -150,6 +154,7 @@ export default function Lessons() {
               >
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
+                <option value="most-saved">Most Saved</option>
                 <option value="title-asc">Title: A-Z</option>
                 <option value="title-desc">Title: Z-A</option>
               </select>
@@ -169,11 +174,10 @@ export default function Lessons() {
                   <button
                     key={category}
                     onClick={() => setSelectedCategory(category)}
-                    className={`px-4 py-1.5 rounded-full text-xs font-bold border transition-all duration-200 active:scale-95 ${
-                      isActive
-                        ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-blue-600 dark:text-white dark:border-blue-600 shadow-md shadow-zinc-900/10 dark:shadow-blue-500/10'
-                        : 'bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 dark:bg-zinc-950 dark:text-zinc-400 dark:border-zinc-800/80 dark:hover:border-zinc-700 dark:hover:bg-zinc-900/30'
-                    }`}
+                    className={`px-4 py-1.5 rounded-full text-xs font-bold border transition-all duration-200 active:scale-95 ${isActive
+                      ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-blue-600 dark:text-white dark:border-blue-600 shadow-md shadow-zinc-900/10 dark:shadow-blue-500/10'
+                      : 'bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 dark:bg-zinc-950 dark:text-zinc-400 dark:border-zinc-800/80 dark:hover:border-zinc-700 dark:hover:bg-zinc-900/30'
+                      }`}
                   >
                     {category}
                   </button>
@@ -210,11 +214,10 @@ export default function Lessons() {
                   <button
                     key={tone}
                     onClick={() => setSelectedTone(tone)}
-                    className={`px-4 py-1.5 rounded-full text-xs font-bold border transition-all duration-200 active:scale-95 ${
-                      isActive
-                        ? (activeColorMap[tone] || 'bg-zinc-900 text-white border-zinc-900')
-                        : `bg-white text-zinc-600 border-zinc-200 dark:bg-zinc-950 dark:text-zinc-400 dark:border-zinc-800/80 ${toneColorMap[tone] || ''}`
-                    }`}
+                    className={`px-4 py-1.5 rounded-full text-xs font-bold border transition-all duration-200 active:scale-95 ${isActive
+                      ? (activeColorMap[tone] || 'bg-zinc-900 text-white border-zinc-900')
+                      : `bg-white text-zinc-600 border-zinc-200 dark:bg-zinc-950 dark:text-zinc-400 dark:border-zinc-800/80 ${toneColorMap[tone] || ''}`
+                      }`}
                   >
                     {tone}
                   </button>
@@ -230,92 +233,201 @@ export default function Lessons() {
             {loading ? (
               <LessonsGridSkeleton key="skeleton" />
             ) : sortedLessons.length > 0 ? (
-              <motion.div
-                key="grid"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                transition={{ duration: 0.3 }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-              >
-                {sortedLessons.map((lesson, idx) => (
-                  <motion.article
-                    key={lesson._id || idx}
-                    whileHover={{ y: -6 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                    className="flex flex-col rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900/40 shadow-sm hover:shadow-xl dark:shadow-none hover:border-zinc-200 dark:hover:border-zinc-700 overflow-hidden group transition-all"
-                  >
-                    {/* Cover Image */}
-                    <Link href={`/lessons/${lesson._id}`} className="block">
-                      <div className="aspect-[16/10] w-full overflow-hidden bg-zinc-100 dark:bg-zinc-800 relative">
-                        <img
-                          src={lesson.coverImage}
-                          alt={lesson.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          loading="lazy"
-                        />
-                        {/* Premium badge */}
-                        {lesson.accessLevel === 'premium' && (
-                          <div className="absolute top-3 right-3 bg-amber-500 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full flex items-center gap-1">
-                            <span>⭐</span> Premium
+              <>
+                <motion.div
+                  key="grid"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  transition={{ duration: 0.3 }}
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+                >
+                  {sortedLessons.map((lesson, idx) => {
+                    const isPremiumUser = session?.user?.plan === 'user_premium' || session?.user?.role === 'admin';
+                    const isPremiumLesson = lesson.accessLevel === 'premium';
+                    const isCardLocked = isPremiumLesson && !isPremiumUser;
+
+                    return (
+                      <motion.article
+                        key={lesson._id || idx}
+                        whileHover={isCardLocked ? {} : { y: -6 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                        className="flex flex-col rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900/40 shadow-sm hover:shadow-xl dark:shadow-none hover:border-zinc-200 dark:hover:border-zinc-700 overflow-hidden group transition-all relative"
+                      >
+                        {isCardLocked && (
+                          <div className="absolute inset-0 bg-slate-950/40 dark:bg-black/60 backdrop-blur-md flex flex-col items-center justify-center text-center p-4 z-10 text-white select-none">
+                            <div className="w-12 h-12 rounded-full bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-3 animate-pulse">
+                              <Lock className="w-5 h-5 stroke-[2.5]" />
+                            </div>
+                            <span className="font-bold text-sm uppercase tracking-wide text-amber-400 font-headline">
+                              Premium Lesson
+                            </span>
+                            <span className="text-xs text-slate-200 mt-1 max-w-[200px] leading-normal font-semibold font-body">
+                              Upgrade to Premium to view this wisdom
+                            </span>
+                            <Link
+                              href="/plans"
+                              className="mt-4 px-4 py-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-zinc-950 rounded-lg text-xs font-extrabold transition shadow-md shadow-amber-500/20 font-headline"
+                            >
+                              Upgrade Plan
+                            </Link>
                           </div>
                         )}
-                      </div>
-                    </Link>
 
-                    {/* Content Container */}
-                    <div className="p-6 flex-grow flex flex-col justify-between space-y-6">
-                      <div className="space-y-3 text-left">
-                        <div>
-                          <span className={`inline-block px-3 py-0.5 rounded-full text-xs font-bold border uppercase tracking-wider ${getCategoryStyles(lesson.category)}`}>
-                            {lesson.category}
-                          </span>
-                        </div>
-                        <h3 className="text-xl font-bold text-zinc-900 dark:text-white line-clamp-2 leading-snug group-hover:text-[#27374D] dark:group-hover:text-blue-400 transition-colors">
-                          {lesson.title}
-                        </h3>
-                        <p className="text-zinc-500 dark:text-zinc-400 text-sm font-body leading-relaxed line-clamp-3">
-                          {lesson.description}
-                        </p>
-                      </div>
-
-                      {/* Author & Read Time footer */}
-                      <div className="flex items-center justify-between pt-4 border-t border-zinc-50 dark:border-zinc-800/80">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full overflow-hidden bg-zinc-100 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center flex-shrink-0">
+                        {/* Cover Image */}
+                        <Link href={`/lessons/${lesson._id}`} className="block">
+                          <div className="aspect-[16/10] w-full overflow-hidden bg-zinc-100 dark:bg-zinc-800 relative">
                             <img
-                              src={lesson.author?.avatar}
-                              alt={lesson.author?.name}
-                              className="w-full h-full object-cover"
+                              src={lesson.coverImage}
+                              alt={lesson.title}
+                              className={`w-full h-full object-cover ${isCardLocked ? 'filter blur-sm' : 'group-hover:scale-105'} transition-transform duration-500`}
+                              loading="lazy"
                             />
+                            {/* Premium badge */}
+                            {lesson.accessLevel === 'premium' && (
+                              <div className="absolute top-3 right-3 bg-amber-500 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full flex items-center gap-1">
+                                <span>⭐</span> Premium
+                              </div>
+                            )}
                           </div>
-                          <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-                            {lesson.author?.name}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          {lesson.likes?.length > 0 && (
-                            <span className="flex items-center gap-1 text-xs text-zinc-400 dark:text-zinc-500">
-                              <Heart className="w-3.5 h-3.5" /> {lesson.likes.length}
-                            </span>
-                          )}
-                          <span className="text-xs font-medium text-zinc-400 dark:text-zinc-500 font-body">
-                            {lesson.readTime}
-                          </span>
-                        </div>
-                      </div>
+                        </Link>
 
-                      {/* CTA */}
-                      <Link
-                        href={`/lessons/${lesson._id}`}
-                        className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 hover:gap-2.5 transition-all group/cta"
-                      >
-                        Read Lesson <ArrowRight className="w-3.5 h-3.5 group-hover/cta:translate-x-0.5 transition-transform" />
-                      </Link>
+                        {/* Content Container */}
+                        <div className="p-6 flex-grow flex flex-col justify-between space-y-6">
+                          <div className="space-y-3 text-left">
+                            <div>
+                              <span className={`inline-block px-3 py-0.5 rounded-full text-xs font-bold border uppercase tracking-wider ${getCategoryStyles(lesson.category)}`}>
+                                {lesson.category}
+                              </span>
+                            </div>
+                            <h3 className="text-xl font-bold text-zinc-900 dark:text-white line-clamp-2 leading-snug group-hover:text-[#27374D] dark:group-hover:text-blue-400 transition-colors">
+                              {lesson.title}
+                            </h3>
+                            <p className="text-zinc-500 dark:text-zinc-400 text-sm font-body leading-relaxed line-clamp-3">
+                              {lesson.description}
+                            </p>
+                          </div>
+
+                          {/* Author & Read Time footer */}
+                          <div className="flex items-center justify-between pt-4 border-t border-zinc-50 dark:border-zinc-800/80">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full overflow-hidden bg-zinc-100 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center flex-shrink-0">
+                                <img
+                                  src={lesson.author?.avatar}
+                                  alt={lesson.author?.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+                                {lesson.author?.name}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              {((typeof lesson.likes === 'number' && lesson.likes > 0) || (Array.isArray(lesson.likes) && lesson.likes.length > 0)) && (
+                                <span className="flex items-center gap-1 text-xs text-zinc-400 dark:text-zinc-500">
+                                  <Heart className="w-3.5 h-3.5" /> {typeof lesson.likes === 'number' ? lesson.likes : lesson.likes.length}
+                                </span>
+                              )}
+                              <span className="text-xs font-medium text-zinc-400 dark:text-zinc-500 font-body">
+                                {lesson.readTime}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* CTA */}
+                          <Link
+                            href={`/lessons/${lesson._id}`}
+                            className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 hover:gap-2.5 transition-all group/cta"
+                          >
+                            Read Lesson <ArrowRight className="w-3.5 h-3.5 group-hover/cta:translate-x-0.5 transition-transform" />
+                          </Link>
+                        </div>
+                      </motion.article>
+                    );
+                  })}
+                </motion.div>
+
+                {/* Image-17acd8.png & Image-175a03.png Custom Split Pagination Alignment Footer */}
+                {totalPages > 1 && (
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mt-12 mb-6 w-full px-2 font-body">
+                    {/* Left side info block - Fixed responsive wrap */}
+                    <div className="text-sm text-zinc-500 dark:text-zinc-400 font-medium whitespace-nowrap">
+                      Showing {Math.min((page - 1) * perPage + 1, total)}-{Math.min(page * perPage, total)} of {total} results
                     </div>
-                  </motion.article>
-                ))}
-              </motion.div>
+
+                    {/* Right side pagination structure - Fixed React Aria DOM Prop leak */}
+                    <Pagination
+                      value={page}
+                      onChange={(p) => setPage(p)}
+                      className="bg-transparent"
+                    >
+                      <Pagination.Content className="gap-1 bg-transparent shadow-none">
+                        {/* Previous Button */}
+                        <Pagination.Item>
+                          <Pagination.Previous
+                            isDisabled={page === 1}
+                            onClick={() => setPage((p) => Math.max(p - 1, 1))}
+                            className="bg-transparent text-zinc-600 dark:text-zinc-400 border-none shadow-none hover:bg-transparent text-sm px-2 font-semibold"
+                          />
+                        </Pagination.Item>
+
+                        {/* Pagination Items & Truncation logic block */}
+                        {Array.from({ length: totalPages }, (_, index) => {
+                          const pageNumber = index + 1;
+
+                          // Sliding window config for ellipsis representation
+                          if (
+                            totalPages > 5 &&
+                            pageNumber !== 1 &&
+                            pageNumber !== totalPages &&
+                            Math.abs(pageNumber - page) > 1
+                          ) {
+                            if (pageNumber === 2 && page > 3) {
+                              return (
+                                <Pagination.Item key="ellipsis-start">
+                                  <span className="text-zinc-400 dark:text-zinc-600 text-sm min-w-6 text-center select-none">...</span>
+                                </Pagination.Item>
+                              );
+                            }
+                            if (pageNumber === totalPages - 1 && page < totalPages - 2) {
+                              return (
+                                <Pagination.Item key="ellipsis-end">
+                                  <span className="text-zinc-400 dark:text-zinc-600 text-sm min-w-6 text-center select-none">...</span>
+                                </Pagination.Item>
+                              );
+                            }
+                            return null;
+                          }
+
+                          return (
+                            <Pagination.Item key={pageNumber}>
+                              <Pagination.Link
+                                isActive={page === pageNumber}
+                                onClick={() => setPage(pageNumber)}
+                                className={`min-w-9 h-9 transition-colors rounded-full font-semibold text-sm flex items-center justify-center cursor-pointer ${page === pageNumber
+                                    ? "bg-zinc-200 dark:bg-zinc-800 text-zinc-950 dark:text-white font-bold"
+                                    : "bg-transparent text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/50"
+                                  }`}
+                              >
+                                {pageNumber}
+                              </Pagination.Link>
+                            </Pagination.Item>
+                          );
+                        })}
+
+                        {/* Next Button */}
+                        <Pagination.Item>
+                          <Pagination.Next
+                            isDisabled={page === totalPages}
+                            onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+                            className="bg-transparent text-zinc-600 dark:text-zinc-400 border-none shadow-none hover:bg-transparent text-sm px-2 font-semibold"
+                          />
+                        </Pagination.Item>
+                      </Pagination.Content>
+                    </Pagination>
+                  </div>
+                )}
+              </>
             ) : (
               <motion.div
                 key="empty"

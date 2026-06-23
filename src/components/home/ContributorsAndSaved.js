@@ -1,51 +1,33 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Check, ArrowRight, Bookmark } from 'lucide-react';
 import Link from 'next/link';
+import { getTopContributors, getMostSavedLessons } from '@/lib/api/lessons';
 
 export default function ContributorsAndSaved() {
-  const contributors = [
-    {
-      name: "Julian Casablancas",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&h=100&q=80",
-      lessonsShared: 42,
-      verified: true
-    },
-    {
-      name: "Margot Robbie",
-      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&h=100&q=80",
-      lessonsShared: 38,
-      verified: true
-    },
-    {
-      name: "Dr. Andrew Huberman",
-      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&h=100&q=80",
-      lessonsShared: 31,
-      verified: false
-    },
-    {
-      name: "Sahar Rose",
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&h=100&q=80",
-      lessonsShared: 29,
-      verified: false
-    }
-  ];
+  const [contributors, setContributors] = useState([]);
+  const [savedLessons, setSavedLessons] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const savedLessons = [
-    {
-      saves: "2.4K",
-      title: "10 Simple Truths About Human Nature"
-    },
-    {
-      saves: "1.9K",
-      title: "The Weekend Recovery Protocol"
-    },
-    {
-      saves: "1.7K",
-      title: "Financial Wisdom I Wish I Knew at 20"
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [contributorsData, savedLessonsData] = await Promise.all([
+          getTopContributors(),
+          getMostSavedLessons()
+        ]);
+        if (contributorsData) setContributors(contributorsData);
+        if (savedLessonsData) setSavedLessons(savedLessonsData);
+      } catch (err) {
+        console.error('Error fetching homepage dynamic data:', err);
+      } finally {
+        setLoading(false);
+      }
     }
-  ];
+    fetchData();
+  }, []);
 
   return (
     <section className="py-20 w-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -63,34 +45,54 @@ export default function ContributorsAndSaved() {
           </div>
 
           <div className="space-y-4 flex-grow pt-4">
-            {contributors.map((c, idx) => (
-              <motion.div
-                key={idx}
-                whileHover={{ x: 4 }}
-                className="flex items-center justify-between p-3.5 rounded-xl border border-zinc-100 dark:border-zinc-800/40 bg-white/60 dark:bg-zinc-900/10 hover:border-zinc-200 dark:hover:border-zinc-800 transition-all"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-11 h-11 rounded-full overflow-hidden bg-zinc-100 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center flex-shrink-0">
-                    <img src={c.avatar} alt={c.name} className="w-full h-full object-cover" />
+            {loading ? (
+              [1, 2, 3, 4].map((i) => (
+                <div key={i} className="flex items-center gap-4 p-3.5 rounded-xl border border-zinc-100 dark:border-zinc-800/40 bg-white/60 dark:bg-zinc-900/10 animate-pulse">
+                  <div className="w-11 h-11 rounded-full bg-zinc-200 dark:bg-zinc-800/80 flex-shrink-0" />
+                  <div className="flex-grow space-y-2">
+                    <div className="h-4 w-1/2 bg-zinc-200 dark:bg-zinc-855/80 rounded" />
+                    <div className="h-3 w-1/4 bg-zinc-200 dark:bg-zinc-855/80 rounded" />
                   </div>
-                  <div className="flex flex-col">
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-bold text-zinc-950 dark:text-white text-base">
-                        {c.name}
-                      </span>
-                      {c.verified && (
-                        <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center text-white p-0.5">
-                          <Check className="w-3 h-3 stroke-[3]" />
+                </div>
+              ))
+            ) : contributors.length === 0 ? (
+              <p className="text-zinc-500 text-sm italic">No contributors found.</p>
+            ) : (
+              contributors.map((c, idx) => (
+                <motion.div
+                  key={idx}
+                  whileHover={{ x: 4 }}
+                  className="flex items-center justify-between p-3.5 rounded-xl border border-zinc-100 dark:border-zinc-800/40 bg-white/60 dark:bg-zinc-900/10 hover:border-zinc-200 dark:hover:border-zinc-800 transition-all"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-11 h-11 rounded-full overflow-hidden bg-zinc-100 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center flex-shrink-0">
+                      {c.avatar ? (
+                        <img src={c.avatar} alt={c.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-zinc-500 font-bold uppercase text-lg">
+                          {c.name ? c.name[0] : '?'}
                         </div>
                       )}
                     </div>
-                    <span className="text-zinc-500 text-xs font-body">
-                      {c.lessonsShared} Lessons Shared
-                    </span>
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-zinc-950 dark:text-white text-base">
+                          {c.name}
+                        </span>
+                        {c.verified && (
+                          <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center text-white p-0.5" title="Verified Contributor">
+                            <Check className="w-3 h-3 stroke-[3]" />
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-zinc-500 text-xs font-body">
+                        {c.lessonsShared} Lessons Shared
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              ))
+            )}
           </div>
         </div>
 
@@ -108,21 +110,37 @@ export default function ContributorsAndSaved() {
               </div>
 
               <div className="space-y-6 pt-4 border-t border-zinc-900">
-                {savedLessons.map((l, idx) => (
-                  <div key={idx} className="flex gap-4 items-start">
-                    <div className="w-9 h-9 rounded-lg bg-zinc-900 border border-zinc-800/80 flex items-center justify-center text-zinc-400 flex-shrink-0">
-                      <Bookmark className="w-4 h-4 fill-zinc-400/10" />
+                {loading ? (
+                  [1, 2, 3].map((i) => (
+                    <div key={i} className="flex gap-4 items-start animate-pulse">
+                      <div className="w-9 h-9 rounded-lg bg-zinc-900 border border-zinc-800/80 flex-shrink-0" />
+                      <div className="flex-grow space-y-2">
+                        <div className="h-3 w-1/4 bg-zinc-800 rounded" />
+                        <div className="h-5 w-3/4 bg-zinc-800 rounded" />
+                      </div>
                     </div>
-                    <div className="flex flex-col">
-                      <span className="text-[10px] font-bold tracking-wider uppercase text-blue-400">
-                        SAVED {l.saves} TIMES
-                      </span>
-                      <span className="text-base font-bold text-white mt-1 hover:text-blue-400 transition-colors cursor-pointer">
-                        {l.title}
-                      </span>
+                  ))
+                ) : savedLessons.length === 0 ? (
+                  <p className="text-zinc-500 text-sm italic">No saved lessons found.</p>
+                ) : (
+                  savedLessons.map((l, idx) => (
+                    <div key={idx} className="flex gap-4 items-start">
+                      <div className="w-9 h-9 rounded-lg bg-zinc-900 border border-zinc-800/80 flex items-center justify-center text-zinc-400 flex-shrink-0">
+                        <Bookmark className="w-4 h-4 fill-zinc-400/10" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-bold tracking-wider uppercase text-blue-400">
+                          SAVED {l.savesCount !== undefined ? l.savesCount : (l.saves || 0)} TIMES
+                        </span>
+                        <Link href={`/lessons/${l._id}`}>
+                          <span className="text-base font-bold text-white mt-1 hover:text-blue-400 transition-colors cursor-pointer block">
+                            {l.title}
+                          </span>
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
 

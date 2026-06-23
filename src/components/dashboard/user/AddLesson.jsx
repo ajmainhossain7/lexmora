@@ -18,7 +18,8 @@ export default function AddLesson({
     setAccessLevel,
     categories,
     tones,
-    submitting
+    submitting,
+    isPremium
 }) {
     return (
         <div className="max-w-2xl bg-white dark:bg-slate-900 p-8 rounded-2xl border border-zinc-200/50 dark:border-zinc-800/40 shadow-sm">
@@ -114,12 +115,19 @@ export default function AddLesson({
                         <select
                             id="lesson-access"
                             value={accessLevel}
+                            disabled={!isPremium}
+                            title={!isPremium ? "Upgrade to Premium to create paid lessons." : ""}
                             onChange={(e) => setAccessLevel(e.target.value)}
-                            className="w-full p-3 bg-slate-50 dark:bg-slate-950 text-slate-850 dark:text-white border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+                            className={`w-full p-3 bg-slate-50 dark:bg-slate-950 text-slate-850 dark:text-white border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition ${!isPremium ? 'opacity-65 cursor-not-allowed' : ''}`}
                         >
                             <option value="free">Free (visible to everyone)</option>
                             <option value="premium">Premium (visible only to Premium users)</option>
                         </select>
+                        {!isPremium && (
+                            <p className="text-xs text-amber-600 dark:text-amber-500 mt-1.5 font-semibold">
+                                Upgrade to Premium to create paid lessons.
+                            </p>
+                        )}
                     </div>
                 </div>
 

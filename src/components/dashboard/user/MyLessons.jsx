@@ -1,4 +1,4 @@
-import { Calendar, Eye, EyeOff, Star, Trash2 } from "lucide-react";
+import { Calendar, Eye, EyeOff, Star, Trash2, Pencil } from "lucide-react";
 import { Button } from "@heroui/react";
 import { useSearchParams } from "next/navigation";
 
@@ -101,6 +101,20 @@ export default function MyLessons({
                                     </td>
                                     <td className="py-4 px-6 text-center">
                                         <div className="flex justify-center gap-2">
+                                            <Button
+                                                isIconOnly
+                                                size="sm"
+                                                color="primary"
+                                                variant="light"
+                                                onClick={() => {
+                                                    const editUrl = view === "user"
+                                                        ? `/dashboard/update-lesson/${lesson._id}?view=user`
+                                                        : `/dashboard/update-lesson/${lesson._id}`;
+                                                    router.push(editUrl);
+                                                }}
+                                            >
+                                                <Pencil className="w-4.5 h-4.5" />
+                                            </Button>
                                             <Button
                                                 isIconOnly
                                                 size="sm"

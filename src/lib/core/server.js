@@ -1,21 +1,15 @@
-import { getAuthHeaders } from './session';
+import { redirect } from "next/navigation";
+import { getUserToken } from "./session";
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000";
 
-const authHeader = async () => {
-    return getAuthHeaders();
-};
-
-const handleStatusCode = async (res) => {
-    if (!res.ok) {
-        throw new Error(`Request failed with status ${res.status}`);
-    }
-    const contentType = res.headers.get("content-type");
-    if (contentType && contentType.includes("application/json")) {
-        return await res.json();
-    }
-    return await res.text();
-};
+export const authHeader = async () => {
+    const token = await getUserToken();
+    const header = token ? {
+        authorization: `Bearer ${token}`
+    } : {};
+    return header;
+}
 
 export const serverFetch = async (path) => {
     const res = await fetch(`${baseUrl}${path}`);
@@ -35,14 +29,30 @@ export const protectedFetch = async (path) => {
     return handleStatusCode(res);
 }
 
+
 export const serverMutation = async (path, data, method = 'POST') => {
     const res = await fetch(`${baseUrl}${path}`, {
         method: method,
         headers: {
             'Content-Type': 'application/json',
-            ...await authHeader()
+            ... await authHeader()
         },
         body: JSON.stringify(data),
     });
+
+
     return handleStatusCode(res);
+}
+
+
+// handle 401, 404, 403
+const handleStatusCode = res => {
+    if (res.status === 401) {
+        redirect('/unauthorized')
+    }
+    else if (res.status === 403) {
+        redirect('/forbidden');
+    }
+
+    return res.json()
 }

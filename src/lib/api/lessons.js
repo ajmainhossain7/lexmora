@@ -9,6 +9,9 @@ export const getLessons = async (filters = {}) => {
   if (filters.emotionalTone && filters.emotionalTone !== 'All') {
     params.append('emotionalTone', filters.emotionalTone);
   }
+  if (filters.sortBy) {
+    params.append('sortBy', filters.sortBy);
+  }
   if (filters.page) {
     params.append('page', filters.page);
     params.append('perPage', filters.perPage || 12);
@@ -28,4 +31,12 @@ export const getMyLessons = async () => {
 
 export const getFeaturedLessons = async () => {
   return await serverFetch('/api/lessons/featured');
+};
+
+export const getTopContributors = async () => {
+  return await serverFetch('/api/lessons/top-contributors');
+};
+
+export const getMostSavedLessons = async () => {
+  return await serverFetch('/api/lessons/most-saved');
 };

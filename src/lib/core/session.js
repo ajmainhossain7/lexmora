@@ -1,33 +1,35 @@
-export const getSessionToken = () => {
-  if (typeof window === 'undefined') return '';
-  const name = "better-auth.session_token=";
-  const decodedCookie = decodeURIComponent(document.cookie);
-  const ca = decodedCookie.split(';');
-  for (let i = 0; i < ca.length; i++) {
-    let c = ca[i];
-    while (c.charAt(0) === ' ') {
-      c = c.substring(1);
-    }
-    if (c.indexOf(name) === 0) {
-      return c.substring(name.length, c.length);
-    }
-  }
-  return '';
-};
-
-
-export const getAuthHeaders = () => {
-  const token = getSessionToken();
-  return token ? { 'Authorization': `Bearer ${token}` } : {};
-};
+"use server";
+import { redirect } from "next/navigation";
+import { auth } from "../auth";
+import { headers } from "next/headers";
 
 export const getUserSession = async () => {
-  if (typeof window !== 'undefined') return null;
-  const { headers } = await import('next/headers');
-  const { auth } = await import('../auth');
-  const headersList = await headers();
   const session = await auth.api.getSession({
-    headers: headersList
-  });
+    headers: await headers()
+  })
+
   return session?.user || null;
-};
+}
+
+export const getUserToken = async () => {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers()
+    });
+    return session?.session?.token || null;
+  } catch (error) {
+    console.error("Error in getUserToken:", error);
+    return null;
+  }
+}
+
+export const requireRole = async (role) => {
+  const user = await getUserSession()
+  if (!user) {
+    redirect('/signin')
+  }
+  if (user?.role !== role) {
+    redirect('/unauthorized')
+  }
+  return user;
+}

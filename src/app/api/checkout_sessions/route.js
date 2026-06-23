@@ -110,7 +110,7 @@ export async function GET(request) {
                 if (user) {
                     await usersCollection.updateOne(
                         { _id: user._id },
-                        { $set: { plan: planId } }
+                        { $set: { plan: planId, isPremium: planId === 'user_premium' } }
                     );
 
                     // Insert subscription record if not present
