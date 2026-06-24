@@ -88,7 +88,7 @@ export default function MyLessons({
                                             onClick={() => handleUpdateAccess(lesson._id, lesson.accessLevel)}
                                             className="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full text-xs font-semibold bg-slate-50 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 text-slate-700 dark:text-zinc-300 transition cursor-pointer"
                                         >
-                                            {lesson.accessLevel === "premium" ? (
+                                            {lesson.isPremium === true || (lesson.accessLevel && lesson.accessLevel.toLowerCase() === "premium") ? (
                                                 <>
                                                     <Star className="w-3.5 h-3.5 text-amber-500 fill-current" /> Premium
                                                 </>

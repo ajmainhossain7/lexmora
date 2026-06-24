@@ -51,7 +51,7 @@ export default function MyFavorites({
                                         </span>
                                     </td>
                                     <td className="py-4 px-6 text-center">
-                                        {lesson.accessLevel === "premium" ? (
+                                        {lesson.isPremium === true || (lesson.accessLevel && lesson.accessLevel.toLowerCase() === "premium") ? (
                                             <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-500">
                                                 <Star className="w-3.5 h-3.5 fill-current" /> Premium
                                             </span>

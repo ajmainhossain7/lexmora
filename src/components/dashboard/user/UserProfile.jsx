@@ -156,7 +156,7 @@ export default function UserProfile({
                                             className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
                                             loading="lazy"
                                         />
-                                        {lesson.accessLevel === 'premium' && (
+                                        {(lesson.isPremium === true || (lesson.accessLevel && lesson.accessLevel.toLowerCase() === 'premium')) && (
                                             <div className="absolute top-3 right-3 bg-amber-500 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">
                                                 ⭐ Premium
                                             </div>

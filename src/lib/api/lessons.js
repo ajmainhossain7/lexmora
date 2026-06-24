@@ -16,6 +16,9 @@ export const getLessons = async (filters = {}) => {
     params.append('page', filters.page);
     params.append('perPage', filters.perPage || 12);
   }
+  if (filters.visibility) {
+    params.append('visibility', filters.visibility);
+  }
   
   const queryString = params.toString() ? `?${params.toString()}` : '';
   return await serverFetch(`/api/lessons${queryString}`);

@@ -10,7 +10,7 @@ import {
   AlertCircle, ChevronRight, Star, FileText, Flag
 } from 'lucide-react';
 import { useSession } from '@/lib/auth-client';
-import { getLessonById } from '@/lib/api/lessons';
+import { getLessonById, getLessons } from '@/lib/api/lessons';
 import { getComments } from '@/lib/api/comments';
 import { checkFavorite } from '@/lib/api/favorites';
 import { toggleLikeLesson } from '@/lib/actions/lessons';
@@ -57,6 +57,7 @@ export default function LessonDetailPage() {
   const [favLoading, setFavLoading] = useState(false);
   const [likeLoading, setLikeLoading] = useState(false);
   const [copied, setCopied]         = useState(false);
+  const [recommended, setRecommended] = useState([]);
   const commentRef = useRef(null);
 
   const [reportModalOpen, setReportModalOpen] = useState(false);
@@ -66,7 +67,7 @@ export default function LessonDetailPage() {
 
   const user = session?.user;
   const isPremiumUser = user?.plan === 'user_premium' || user?.role === 'admin';
-  const isPremiumLesson = lesson?.accessLevel === 'premium';
+  const isPremiumLesson = lesson?.isPremium === true || (lesson?.accessLevel && lesson.accessLevel.toLowerCase() === 'premium');
   const isLocked = isPremiumLesson && !isPremiumUser;
 
   // ── Load lesson ─────────────────────────────────────────────────────────────
@@ -102,6 +103,24 @@ export default function LessonDetailPage() {
     if (!id || !user) return;
     checkFavorite(id).then(setFavorited);
   }, [id, user]);
+
+  // ── Load recommended lessons by tone ─────────────────────────────────────────
+  useEffect(() => {
+    if (!lesson || !lesson.emotionalTone) return;
+    async function loadRecommended() {
+      try {
+        const data = await getLessons({
+          emotionalTone: lesson.emotionalTone,
+        });
+        const list = data?.lessons || (Array.isArray(data) ? data : []);
+        const filtered = list.filter(l => l._id !== lesson._id);
+        setRecommended(filtered.slice(0, 3));
+      } catch (err) {
+        console.error('Error loading recommendations:', err);
+      }
+    }
+    loadRecommended();
+  }, [lesson, id]);
 
   // ── Handle escape key closure for report modal ────────────────────────────────
   useEffect(() => {
@@ -394,69 +413,48 @@ export default function LessonDetailPage() {
         </div>
 
         {/* ── Lesson Body ─────────────────────────────────────────────────── */}
-        <div className="relative">
+        <div className="relative min-h-[150px]">
           {/* Description / content */}
-          <div className={`prose prose-zinc dark:prose-invert max-w-none text-base leading-relaxed text-zinc-700 dark:text-zinc-300 font-body ${isLocked ? 'select-none' : ''}`}>
-            {isLocked ? (
-              // Show first ~200 chars then blur
-              <>
-                <p>{lesson.description?.slice(0, 200)}…</p>
-                {lesson.body && <p className="filter blur-sm pointer-events-none">{lesson.body?.slice(0, 400)}</p>}
-              </>
-            ) : (
-              <>
-                <p>{lesson.description}</p>
-                {lesson.body && (
-                  <div className="mt-6 whitespace-pre-wrap">{lesson.body}</div>
-                )}
-              </>
+          <div className={`prose prose-zinc dark:prose-invert max-w-none text-base leading-relaxed text-zinc-700 dark:text-zinc-300 font-body transition-all duration-300 ${isLocked ? 'select-none pointer-events-none filter blur-[8px] opacity-25' : ''}`}>
+            <p>{lesson.description}</p>
+            {lesson.body && (
+              <div className="mt-6 whitespace-pre-wrap">{lesson.body}</div>
             )}
           </div>
 
           {/* ── Premium Lock Gate ──────────────────────────────────────────── */}
-          <AnimatePresence>
-            {isLocked && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mt-8 relative"
-              >
-                {/* blurred content preview strip */}
-                <div className="absolute -top-28 left-0 right-0 h-28 bg-gradient-to-b from-transparent to-white dark:to-zinc-950 pointer-events-none z-10" />
-
-                {/* Lock card */}
-                <div className="relative z-20 rounded-3xl border border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-900/10 p-8 text-center shadow-xl space-y-4">
-                  <div className="w-16 h-16 rounded-2xl bg-amber-100 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700/40 flex items-center justify-center mx-auto">
-                    <Lock className="w-8 h-8 text-amber-600 dark:text-amber-400" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-zinc-900 dark:text-white font-headline mb-1">This is a Premium Lesson</h2>
-                    <p className="text-zinc-500 dark:text-zinc-400 text-sm max-w-sm mx-auto font-body leading-relaxed">
-                      Upgrade to <span className="font-semibold text-amber-600 dark:text-amber-400">Lexmora Premium</span> to unlock full access to this lesson and all exclusive content.
-                    </p>
-                  </div>
-                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                    <Link
-                      href="/plans"
-                      className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-3 rounded-xl text-sm transition-all shadow-lg shadow-amber-500/20 hover:scale-[1.02]"
-                    >
-                      <Star className="w-4 h-4 fill-white" />
-                      Upgrade to Premium
-                      <ChevronRight className="w-4 h-4" />
-                    </Link>
-                    {!user && (
-                      <Link
-                        href="/signin"
-                        className="inline-flex items-center gap-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 font-semibold px-6 py-3 rounded-xl text-sm transition-all hover:border-zinc-400"
-                      >
-                        Sign In
-                      </Link>
-                    )}
-                  </div>
+          {isLocked && (
+            <div className="absolute inset-0 flex items-center justify-center p-4 z-20">
+              <div className="rounded-3xl border border-amber-200 dark:border-amber-500/30 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md p-8 text-center shadow-2xl max-w-md mx-auto space-y-4">
+                <div className="w-16 h-16 rounded-2xl bg-amber-100 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700/40 flex items-center justify-center mx-auto text-amber-600 dark:text-amber-400">
+                  <Lock className="w-8 h-8" />
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                <div>
+                  <h2 className="text-xl font-bold text-zinc-900 dark:text-white font-headline mb-1">Premium Lesson Content</h2>
+                  <p className="text-zinc-500 dark:text-zinc-400 text-sm max-w-sm mx-auto font-body leading-relaxed">
+                    Upgrade to <span className="font-semibold text-amber-600 dark:text-amber-400">Lexmora Premium</span> to unlock full access to this lesson and all exclusive content.
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+                  <Link
+                    href="/plans"
+                    className="inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-3 rounded-xl text-sm transition-all shadow-lg shadow-amber-500/20 hover:scale-[1.02]"
+                  >
+                    <Star className="w-4 h-4 fill-white" />
+                    Upgrade Plan
+                  </Link>
+                  {!user && (
+                    <Link
+                      href="/signin"
+                      className="inline-flex items-center justify-center gap-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 font-semibold px-6 py-3 rounded-xl text-sm transition-all hover:border-zinc-400"
+                    >
+                      Sign In
+                    </Link>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* ── Tags / Tone Chip ──────────────────────────────────────────────── */}
@@ -572,6 +570,45 @@ export default function LessonDetailPage() {
             </AnimatePresence>
           </div>
         </div>
+
+        {/* Similar Tone Recommendations (Mockup Recommended for you Section) */}
+        {recommended.length > 0 && (
+          <div className="mt-16 pt-10 border-t border-zinc-250 dark:border-zinc-850">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white font-headline mb-6 text-left">
+              Recommended for you
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              {recommended.map((rec) => (
+                <Link
+                  key={rec._id}
+                  href={`/lessons/${rec._id}`}
+                  className="group flex flex-col rounded-2xl overflow-hidden border border-zinc-200/60 dark:border-zinc-800 bg-white dark:bg-[#0A0D1A] shadow-sm hover:shadow-md transition-all duration-300"
+                >
+                  <div className="aspect-[16/10] overflow-hidden bg-slate-100">
+                    <img
+                      src={rec.coverImage}
+                      alt={rec.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  <div className="p-4 flex-grow flex flex-col justify-between text-left">
+                    <div className="space-y-1.5">
+                      <span className="text-[10px] font-extrabold text-indigo-650 dark:text-indigo-400 uppercase tracking-wider block">
+                        {rec.category}
+                      </span>
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-white line-clamp-2 leading-snug group-hover:text-indigo-600 transition-colors">
+                        {rec.title}
+                      </h4>
+                    </div>
+                    <p className="text-[11px] font-semibold text-slate-450 dark:text-zinc-550 mt-3 truncate">
+                      {rec.author?.name || rec.authorName || 'Anonymous'} · {rec.readTime}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Printable Lesson view (hidden on screen, visible during printing) */}

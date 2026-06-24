@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, SlidersHorizontal, ArrowUpDown, CornerDownRight, ArrowRight, Frown, Sparkles, Heart, Lock } from 'lucide-react';
 import { Button, Pagination } from '@heroui/react';
@@ -15,6 +16,7 @@ const emotionalTones = ['All', 'Hopeful', 'Resilient', 'Reflective', 'Motivated'
 export default function Lessons() {
   const { resolvedTheme } = useTheme();
   const { data: session } = useSession();
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,6 +31,13 @@ export default function Lessons() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Scroll to top when page changes
+  useEffect(() => {
+    if (mounted) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [page, mounted]);
 
   // Reset page to 1 when filters change
   useEffect(() => {
@@ -244,7 +253,7 @@ export default function Lessons() {
                 >
                   {sortedLessons.map((lesson, idx) => {
                     const isPremiumUser = session?.user?.plan === 'user_premium' || session?.user?.role === 'admin';
-                    const isPremiumLesson = lesson.accessLevel === 'premium';
+                    const isPremiumLesson = lesson.isPremium === true || (lesson.accessLevel && lesson.accessLevel.toLowerCase() === 'premium');
                     const isCardLocked = isPremiumLesson && !isPremiumUser;
 
                     return (
@@ -255,22 +264,21 @@ export default function Lessons() {
                         className="flex flex-col rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900/40 shadow-sm hover:shadow-xl dark:shadow-none hover:border-zinc-200 dark:hover:border-zinc-700 overflow-hidden group transition-all relative"
                       >
                         {isCardLocked && (
-                          <div className="absolute inset-0 bg-slate-950/40 dark:bg-black/60 backdrop-blur-md flex flex-col items-center justify-center text-center p-4 z-10 text-white select-none">
+                          <div 
+                            onClick={() => router.push('/plans')}
+                            className="absolute inset-0 bg-slate-950/60 dark:bg-black/75 backdrop-blur-md flex flex-col items-center justify-center text-center p-4 z-10 text-white select-none cursor-pointer"
+                          >
                             <div className="w-12 h-12 rounded-full bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-3 animate-pulse">
                               <Lock className="w-5 h-5 stroke-[2.5]" />
                             </div>
-                            <span className="font-bold text-sm uppercase tracking-wide text-amber-400 font-headline">
-                              Premium Lesson
+                            <span className="font-extrabold text-sm uppercase tracking-wide text-amber-400 font-headline text-center max-w-[220px]">
+                              Premium Lesson – Upgrade to view
                             </span>
-                            <span className="text-xs text-slate-200 mt-1 max-w-[200px] leading-normal font-semibold font-body">
-                              Upgrade to Premium to view this wisdom
-                            </span>
-                            <Link
-                              href="/plans"
-                              className="mt-4 px-4 py-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-zinc-950 rounded-lg text-xs font-extrabold transition shadow-md shadow-amber-500/20 font-headline"
+                            <button
+                              className="mt-4 px-4 py-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-zinc-950 rounded-lg text-xs font-extrabold transition shadow-md shadow-amber-500/20 font-headline cursor-pointer"
                             >
                               Upgrade Plan
-                            </Link>
+                            </button>
                           </div>
                         )}
 
@@ -284,7 +292,7 @@ export default function Lessons() {
                               loading="lazy"
                             />
                             {/* Premium badge */}
-                            {lesson.accessLevel === 'premium' && (
+                            {isPremiumLesson && (
                               <div className="absolute top-3 right-3 bg-amber-500 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full flex items-center gap-1">
                                 <span>⭐</span> Premium
                               </div>
@@ -293,7 +301,7 @@ export default function Lessons() {
                         </Link>
 
                         {/* Content Container */}
-                        <div className="p-6 flex-grow flex flex-col justify-between space-y-6">
+                        <div className={`p-6 flex-grow flex flex-col justify-between space-y-6 ${isCardLocked ? 'filter blur-[3px] select-none pointer-events-none' : ''}`}>
                           <div className="space-y-3 text-left">
                             <div>
                               <span className={`inline-block px-3 py-0.5 rounded-full text-xs font-bold border uppercase tracking-wider ${getCategoryStyles(lesson.category)}`}>

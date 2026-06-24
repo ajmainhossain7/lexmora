@@ -227,8 +227,12 @@ export default function UserDashboard() {
                     totalSaved={totalSaved}
                     tones={tones}
                     myLessons={myLessons}
+                    favorites={favorites}
                     user={user}
                     router={router}
+                    handleUpdateVisibility={handleUpdateVisibility}
+                    handleUpdateAccess={handleUpdateAccess}
+                    handleDeleteLesson={handleDeleteLesson}
                 />
             )}
 

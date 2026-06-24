@@ -74,7 +74,7 @@ export default function AdminDashboard() {
             setStats(adminStats);
             const users = await getAdminUsers();
             setUsersList(users || []);
-            const allLessons = await getLessons();
+            const allLessons = await getLessons({ visibility: 'all' });
             setLessonsList(allLessons || []);
             const reports = await getReports();
             setReportsList(reports || []);
