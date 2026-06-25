@@ -3,7 +3,7 @@
 Lexmora is a premium full-stack platform where users can create, store, and share meaningful life lessons, personal growth insights, and wisdom they have gathered over time. The platform encourages mindful reflection, preserving personal wisdom, and learning from the experiences of a global community.
 
 ## Live URL
-[Lexmora Live Site](https://lexmora.vercel.app)
+[Lexmora Live Site](https://lexmora-one.vercel.app)
 
 ---
 
