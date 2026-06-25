@@ -41,7 +41,7 @@ export default function MyFavorites({
                                             />
                                             <div>
                                                 <h4 className="font-bold text-slate-800 dark:text-zinc-200 line-clamp-1">{lesson.title}</h4>
-                                                <span className="text-xs text-slate-400">By {lesson.authorName}</span>
+                                                <span className="text-xs text-slate-400">By {lesson.authorName || lesson.author?.name || 'Anonymous'}</span>
                                             </div>
                                         </div>
                                     </td>

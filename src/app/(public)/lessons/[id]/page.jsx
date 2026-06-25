@@ -311,16 +311,16 @@ export default function LessonDetailPage() {
           {/* Author */}
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-white dark:border-zinc-700 shadow-md flex-shrink-0 bg-zinc-100 dark:bg-zinc-800">
-              {lesson.author?.avatar ? (
-                <img src={lesson.author.avatar} alt={lesson.author.name} className="w-full h-full object-cover" />
+              {(lesson.author?.avatar || lesson.authorAvatar) ? (
+                <img src={lesson.author?.avatar || lesson.authorAvatar} alt={lesson.author?.name || lesson.authorName || 'Author'} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-lg font-bold text-zinc-500">
-                  {(lesson.author?.name || 'A')[0]}
+                  {(lesson.author?.name || lesson.authorName || 'A')[0]}
                 </div>
               )}
             </div>
             <div>
-              <p className="font-bold text-zinc-900 dark:text-white text-sm">{lesson.author?.name || 'Anonymous'}</p>
+              <p className="font-bold text-zinc-900 dark:text-white text-sm">{lesson.author?.name || lesson.authorName || 'Anonymous'}</p>
               <div className="flex items-center gap-2 text-xs text-zinc-400 dark:text-zinc-500">
                 {lesson.readTime && (
                   <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{lesson.readTime}</span>
@@ -620,7 +620,7 @@ export default function LessonDetailPage() {
           <h1 style={{ fontSize: '2.25rem', fontWeight: '800', margin: '0.5rem 0', color: '#0f172a' }}>{lesson.title}</h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '1rem' }}>
             <div>
-              <p style={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#1e293b', margin: 0 }}>Shared by: {lesson.author?.name || 'Anonymous'}</p>
+              <p style={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#1e293b', margin: 0 }}>Shared by: {lesson.author?.name || lesson.authorName || 'Anonymous'}</p>
               <p style={{ fontSize: '0.75rem', color: '#64748b', margin: 0 }}>{lesson.readTime} · {lesson.createdAt ? new Date(lesson.createdAt).toLocaleDateString() : ''}</p>
             </div>
           </div>

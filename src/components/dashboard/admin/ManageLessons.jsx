@@ -160,7 +160,7 @@ export default function ManageLessons({
                               </span>
                             )}
                           </div>
-                          <span className="text-xs text-slate-400">By {lesson.authorName || lesson.authorEmail}</span>
+                          <span className="text-xs text-slate-400">By {lesson.authorName || lesson.author?.name || lesson.authorEmail || 'Anonymous'}</span>
                         </div>
                       </div>
                     </td>

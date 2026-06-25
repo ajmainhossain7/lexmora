@@ -65,14 +65,20 @@ export default function UserDashboard() {
         e.preventDefault();
         setUpdatingProfile(true);
         try {
-            const { error } = await authClient.user.update({
-                name: profileName,
-                image: profileImage,
+            const response = await fetch("/api/user/update-profile", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: profileName, image: profileImage }),
             });
-            if (error) {
-                toast.error(error.message || "Failed to update profile information.");
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                toast.error(result.error || "Failed to update profile information.");
             } else {
-                toast.success("Profile information updated successfully!");
+                // Force a fresh session so the new name/avatar shows immediately
+                await authClient.getSession({ force: true });
+                toast.success("Profile updated successfully!");
                 router.refresh();
             }
         } catch (err) {
@@ -131,6 +137,10 @@ export default function UserDashboard() {
             authorName: user.name,
             authorEmail: user.email,
             authorAvatar: user.image || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(user.name)}`,
+            author: {
+                name: user.name,
+                avatar: user.image || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(user.name)}`
+            },
             readTime: `${Math.max(1, Math.ceil(description.split(" ").length / 150))} min read`,
             likes: [],
         };

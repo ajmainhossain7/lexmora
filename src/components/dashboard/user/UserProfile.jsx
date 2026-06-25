@@ -1,6 +1,7 @@
+
 import { Button } from "@heroui/react";
-import { uploadImage } from "@/utils/uploadImage";
 import toast from "react-hot-toast";
+import { uploadImage } from "@/lib/uploadImage";
 
 export default function UserProfile({
     user,
@@ -90,7 +91,7 @@ export default function UserProfile({
                                     onChange={async (e) => {
                                         const file = e.target.files?.[0];
                                         if (file) {
-                                            const toastId = toast.loading("Uploading avatar to ImgBB...");
+                                            const toastId = toast.loading("Processing image...");
                                             const url = await uploadImage(file);
                                             toast.dismiss(toastId);
                                             if (url) {

@@ -1,6 +1,8 @@
 'use client';
 
 import { Button } from '@heroui/react';
+import toast from 'react-hot-toast';
+import { uploadImage } from '@/lib/uploadImage';
 
 export default function AdminProfile({
   session,
@@ -46,12 +48,12 @@ export default function AdminProfile({
         </div>
 
         {/* Edit Profile Form */}
-        <div className="mt-10 border-t border-zinc-150 dark:border-zinc-800/80 pt-8 animate-fade-in animate-duration-300">
+        <div className="mt-10 border-t border-zinc-155 dark:border-zinc-800/80 pt-8 animate-fade-in animate-duration-300">
           <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-6">Update Admin Profile</h3>
           <form onSubmit={handleUpdateAdminProfile} className="space-y-6 max-w-xl">
             <div className="grid sm:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-zinc-300 mb-2">Display Name</label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-zinc-350 mb-2">Display Name</label>
                 <input
                   type="text"
                   required
@@ -61,7 +63,7 @@ export default function AdminProfile({
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-zinc-300 mb-2">Email Address</label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-zinc-350 mb-2">Email Address</label>
                 <input
                   type="email"
                   disabled
@@ -72,14 +74,39 @@ export default function AdminProfile({
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 dark:text-zinc-300 mb-2">Avatar URL</label>
-              <input
-                type="text"
-                value={profileImage}
-                onChange={(e) => setProfileImage(e.target.value)}
-                placeholder="https://images.unsplash.com/..."
-                className="w-full p-3 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-              />
+              <label className="block text-sm font-semibold text-slate-700 dark:text-zinc-350 mb-2">Avatar Profile Image</label>
+              <div className="space-y-3">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const toastId = toast.loading("Processing image...");
+                      const url = await uploadImage(file);
+                      toast.dismiss(toastId);
+                      if (url) {
+                        setProfileImage(url);
+                        toast.success("Avatar uploaded successfully!");
+                      }
+                    }
+                  }}
+                  className="w-full p-2.5 text-sm bg-slate-50 dark:bg-slate-950 text-slate-808 dark:text-white border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-650 dark:file:bg-indigo-950/40 dark:file:text-indigo-400 file:cursor-pointer hover:file:bg-indigo-100 transition"
+                />
+                {profileImage && (
+                  <div className="relative w-20 h-20 rounded-full overflow-hidden border border-zinc-200 dark:border-zinc-800">
+                    <img src={profileImage} alt="Avatar preview" className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setProfileImage("")}
+                      className="absolute top-0 right-0 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 text-[10px] leading-none transition cursor-pointer"
+                      title="Remove Image"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             <Button

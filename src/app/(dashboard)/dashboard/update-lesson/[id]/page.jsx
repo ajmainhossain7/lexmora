@@ -9,7 +9,7 @@ import { Button } from "@heroui/react";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { uploadImage } from "@/utils/uploadImage";
+import { uploadImage } from "@/lib/uploadImage";
 
 export default function UpdateLessonPage() {
     const { id } = useParams();
@@ -176,7 +176,7 @@ export default function UpdateLessonPage() {
                             onChange={async (e) => {
                                 const file = e.target.files?.[0];
                                 if (file) {
-                                    const toastId = toast.loading("Uploading image to ImgBB...");
+                                    const toastId = toast.loading("Uploading image...");
                                     const url = await uploadImage(file);
                                     toast.dismiss(toastId);
                                     if (url) {

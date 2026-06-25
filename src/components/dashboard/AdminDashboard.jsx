@@ -90,13 +90,19 @@ export default function AdminDashboard() {
         e.preventDefault();
         setUpdatingProfile(true);
         try {
-            const { error } = await authClient.user.update({
-                name: profileName,
-                image: profileImage,
+            const response = await fetch("/api/user/update-profile", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: profileName, image: profileImage }),
             });
-            if (error) {
-                toast.error(error.message || "Failed to update admin profile.");
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                toast.error(result.error || "Failed to update admin profile.");
             } else {
+                // Force a fresh session so the new name/avatar shows immediately
+                await authClient.getSession({ force: true });
                 toast.success("Admin profile updated successfully!");
                 router.refresh();
             }

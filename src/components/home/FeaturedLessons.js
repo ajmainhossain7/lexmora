@@ -110,13 +110,13 @@ export default function FeaturedLessons({ lessons = [] }) {
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full overflow-hidden bg-zinc-100 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center flex-shrink-0">
                     <img
-                      src={lesson.author?.avatar}
-                      alt={lesson.author?.name}
+                      src={lesson.author?.avatar || lesson.authorAvatar || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(lesson.author?.name || lesson.authorName || 'User')}`}
+                      alt={lesson.author?.name || lesson.authorName || 'Author'}
                       className="w-full h-full object-cover"
                     />
                   </div>
                   <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-                    {lesson.author?.name}
+                    {lesson.author?.name || lesson.authorName || 'Anonymous'}
                   </span>
                 </div>
                 <span className="text-xs font-medium text-zinc-400 dark:text-zinc-500 font-body">
